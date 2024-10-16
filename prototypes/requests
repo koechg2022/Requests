@@ -1,0 +1,324 @@
+
+
+
+#include "networking_functions"
+
+
+namespace requests {
+
+
+    namespace http_requests {
+
+        // HTTP Response codes
+        namespace response_codes {
+            const std::string 
+                OK = "200",
+                MOVED_PERMANENTLY = "301",
+                MOVED_TEMPORARILY = "307",
+                BAD_REQUEST = "400",
+                UNAUTHORIZED = "401",
+                FORBIDDEN = "403",
+                INTERNAL_SERVER_ERROR = "500";
+
+        }
+
+        typedef std::map<std::string, std::vector<std::string> > http_header;
+
+        typedef struct http_response {
+            http_header header;
+            std::string body;
+        } http_response;
+
+
+        /**
+        *
+        *   @brief Parse a url and retrieve from it a hostname, a port, a path, and a hash.
+        *
+        *   @param url (`const std::string`) : The url to parse the other values out of.
+        *
+        *   @param host_name (std::string&) : The reference to fill with the hostname embedded in the url.
+        *
+        *   @param port (std::string&) : The reference to fill with the port embedded in the url.
+        *
+        *   @param path (std::string&) : The reference to fill with the path embeded in the url.
+        *
+        *   @param hash (std::string&) : The reference to fill with the hash embedded in the url.
+        *
+        *
+        */
+        void parse_url(const std::string& url, std::string& protocol, std::string& host_name, std::string& port, std::string& path, std::string& hash);
+
+        
+        class http {
+
+            protected:
+
+                networking::network_structures::tcp_client client;
+                std::string User_agent, Accept_Language, 
+                            Accept, Accept_Encoding, Connection, 
+                            path, hash, http_version;
+
+            public:
+
+                http(const std::string url, const std::string user_agent = "Don't Worry about it", const std::string accept_lang = "en-US", const std::string accept_ = "text/html", const std::string accept_encoding = "gzip, deflate", const std::string connection = "Keep-Alive", const std::string http_version = "1.1");
+
+                
+                ~http();
+
+
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns A `http_response` with the response from the server.
+                *
+                */
+                http_response get();
+
+                
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool head();
+
+                
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool post();
+
+
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool put();
+
+
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool delete_();
+
+
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool trace();
+
+
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool connect_();
+
+
+                /**
+                *
+                *   @brief Use to get a resource from a remote http machine
+                *
+                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *
+                */
+                bool options();
+
+                
+                /**
+                *
+                *
+                *   @brief Set the user agent to be used in the http comunication
+                *
+                *
+                *   @param new_user_agent (`const std::string`) : The new User agent to use.
+                *
+                *   @returns The current user instance.
+                *
+                */
+                http& user_agent(const std::string new_user_agent);
+
+                
+                /**
+                *
+                *   @brief Get the user agent.
+                *
+                *
+                *   @returns The user agent.
+                *
+                */
+                std::string user_agent() const;
+
+                
+                /**
+                *
+                *
+                *   @brief Set the accept language for this http client.
+                *
+                *   @param new_accept_langauge (`const std::string`) : The language that the http client will accept/read.
+                *
+                *   @returns The instance of this http object.
+                *
+                */
+                http& accept_language(const std::string new_accept_language);
+
+                
+                /**
+                *
+                *
+                *   @brief Get the accept_language that is used by this http request object.
+                *
+                *
+                *
+                *   @returns The language that is accepted by this http request object.
+                *
+                */
+                std::string accept_language() const;
+
+                
+                /**
+                *
+                *
+                *   @brief Set the accept type for this http request object.
+                *
+                *
+                *   @param accept_ (`const std::string`) : The file types that are acceptable.
+                *
+                *
+                *   @returns An instance of this http request object.
+                *
+                */
+                http& accept_type(const std::string accept_);
+
+                
+                /**
+                *
+                *   @brief Get the type of files that are acceptable.
+                *
+                *
+                *
+                *
+                *   @returns A `std::string` of the acceptable file(s).
+                *
+                *
+                */
+                std::string accept_type() const;
+
+                
+                /**
+                *
+                *
+                *   @brief Set the type of encoding that this http request object
+                *   will accept.
+                *
+                *   @param encoding (`const std::string`) : The type of encoding
+                *   that this http request object will accept.
+                *
+                *
+                *   @returns An instance of this http request object.
+                *
+                */
+                http& accept_encoding(const std::string encoding);
+
+                
+                /**
+                *
+                *   @brief Get the connection type that this http client is using
+                *
+                *   @returns A `std::string` of the connection type that this client uses.
+                *
+                */
+                std::string connection_type() const;
+
+                
+                /**
+                *
+                *
+                *   @brief Set the path for where the http request object should retrieve data from.
+                *
+                *
+                *   @returns An instance of this http request object.
+                *
+                */
+                http& the_path(const std::string new_path);
+
+                
+                /**
+                *
+                *
+                *   @brief Get the path that this http request object uses in it's connection.
+                *
+                *
+                *   @returns A `const std::string` of the path that this https requests object uses.
+                *
+                */
+                std::string the_path() const;
+
+                
+                /**
+                *
+                *
+                *   @brief Set the hash that is used in the url passed into this http request.
+                *
+                *
+                *   @param the_path (`const std::string`) : Update the hash that is used
+                *    in the http request url.
+                *
+                *   @returns An instance of this http request object.
+                *
+                */
+                http& the_hash(const std::string the_path);
+
+                
+                /**
+                *
+                *
+                *   @brief Get the hash that is being used by this http request object.
+                *
+                *
+                *
+                *   @returns A `std::string` of the hash that is used by this http request object.
+                *
+                *
+                */
+                std::string the_hash() const;
+
+
+        };
+
+
+        class https : public http {
+
+            public:
+
+                https();
+
+        };
+
+    }
+
+
+
+
+}

@@ -1,0 +1,112 @@
+
+
+http_response response; // Create an instance of http_response
+std::clock_t start_time = std::clock();
+std::string header_buffer;
+
+while (client.client_is_connected()) {
+    if (((double)(std::clock() - start_time)) / CLOCKS_PER_SEC > TIMEOUT) {
+        std::fprintf(stderr, "timeout after %.2f seconds.\n", TIMEOUT);
+        client.disconnect_client();
+        break; // Break out of the loop on timeout
+    }
+
+    if (p == end) {
+        std::fprintf(stderr, "Out of buffer space.\n");
+        client.disconnect_client();
+        break; // Break out of the loop if buffer is full
+    }
+
+    if (client.server_has_message()) {
+        bytes_received = recv(client.get_connection_socket(), p, end - p, 0);
+
+        if (bytes_received < 1) {
+            std::printf("\nConnection closed by peer.\n");
+            break;
+        }
+
+        p += bytes_received;
+        *p = 0; // Null-terminate the response
+
+        // Check for headers
+        if (body == nullptr && (body = std::strstr(response_buffer, "\r\n\r\n"))) {
+            *body = 0; // Null-terminate headers
+            body += 4; // Move past the headers
+
+            // Parse the status line
+            std::istringstream status_line(response_buffer);
+            std::string http_version;
+            status_line >> http_version >> response.status; // Assuming status is of type status_type
+
+            std::printf("Received Headers:\n%s\n", response_buffer);
+
+            // Parse headers
+            header_buffer = response_buffer;
+            std::istringstream header_stream(header_buffer);
+            std::string header_line;
+
+            while (std::getline(header_stream, header_line) && header_line != "\r") {
+                size_t colon_pos = header_line.find(':');
+                if (colon_pos != std::string::npos) {
+                    std::string header_name = header_line.substr(0, colon_pos);
+                    std::string header_value = header_line.substr(colon_pos + 1);
+                    // Trim spaces from header value
+                    header_value.erase(0, header_value.find_first_not_of(' '));
+                    response.headers[header_name].insert(header_value);
+                }
+            }
+
+            // Determine encoding and content length
+            const char* content_length_header = "Content-Length: ";
+            const char* transfer_encoding_header = "Transfer-Encoding: chunked";
+
+            if (header_buffer.find(content_length_header) != std::string::npos) {
+                encoding = length;
+                // Extract content length value
+                size_t length_pos = header_buffer.find(content_length_header) + strlen(content_length_header);
+                remaining = std::stoi(header_buffer.substr(length_pos));
+            } else if (header_buffer.find(transfer_encoding_header) != std::string::npos) {
+                encoding = chunked;
+                remaining = 0;
+            } else {
+                encoding = connection;
+            }
+
+            std::printf("\nReceived Body:\n");
+        }
+
+        // Handle the body
+        if (body) {
+            if (encoding == length) {
+                if (p - body >= remaining) {
+                    response.body.append(body, remaining);
+                    break;
+                }
+            } else if (encoding == chunked) {
+                do {
+                    if (remaining == 0) {
+                        if ((q = std::strstr(body, "\r\n"))) {
+                            remaining = std::strtol(body, nullptr, 16);
+                            if (remaining == 0) goto finish; // End of chunked response
+                            body = q + 2; // Move past the chunk size
+                        } else {
+                            break;
+                        }
+                    }
+
+                    if (remaining > 0 && p - body >= remaining) {
+                        response.body.append(body, remaining);
+                        body += remaining + 2; // Move past the chunk data and CRLF
+                        remaining = 0;
+                    }
+
+                } while (remaining == 0);
+            }
+        }
+    }
+}
+
+finish:
+std::printf("\nClosing socket...\n");
+client.disconnect_client();
+return response; // Return the filled http_response
