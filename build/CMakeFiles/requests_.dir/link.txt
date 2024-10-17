@@ -1,2 +1,0 @@
-/usr/bin/ar qc librequests_.a CMakeFiles/requests_.dir/libs/requests.c++.o
-/usr/local/Cellar/llvm/19.1.1/bin/llvm-ranlib librequests_.a

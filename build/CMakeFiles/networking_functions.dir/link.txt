@@ -1,2 +1,0 @@
-/usr/bin/ar qc libnetworking_functions.a CMakeFiles/networking_functions.dir/libs/networking_functions.c++.o
-/usr/local/Cellar/llvm/19.1.1/bin/llvm-ranlib libnetworking_functions.a

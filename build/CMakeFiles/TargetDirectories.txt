@@ -1,6 +1,0 @@
-/Users/geoffreykoech/Desktop/Personal Projects/Libraries/C++/Networking/Requests/build/CMakeFiles/networking_functions.dir
-/Users/geoffreykoech/Desktop/Personal Projects/Libraries/C++/Networking/Requests/build/CMakeFiles/string_functions.dir
-/Users/geoffreykoech/Desktop/Personal Projects/Libraries/C++/Networking/Requests/build/CMakeFiles/requests_.dir
-/Users/geoffreykoech/Desktop/Personal Projects/Libraries/C++/Networking/Requests/build/CMakeFiles/requests_tests.dir
-/Users/geoffreykoech/Desktop/Personal Projects/Libraries/C++/Networking/Requests/build/CMakeFiles/edit_cache.dir
-/Users/geoffreykoech/Desktop/Personal Projects/Libraries/C++/Networking/Requests/build/CMakeFiles/rebuild_cache.dir

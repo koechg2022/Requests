@@ -1,2 +1,0 @@
-/usr/bin/ar qc libstring_functions.a CMakeFiles/string_functions.dir/libs/string_functions.c++.o
-/usr/local/Cellar/llvm/19.1.1/bin/llvm-ranlib libstring_functions.a
