@@ -19,7 +19,7 @@ namespace requests {
         current = url.find("://");
         if (not (current is std::string::npos)) {
             // the protocol is defined
-            protocol = url.substr(start, current - start + 3);
+            protocol = url.substr(start, current - start);
             current = current + 3;
             start = current;
         }
@@ -56,7 +56,7 @@ namespace requests {
 
         // Path
         if (current < url.length() and string_functions::same_char(url[current], '/')) {
-            start = current + 1;
+            start = current;
             while (current < url.length() and
                     (not string_functions::same_char(url[current], '#'))) current++;
             
