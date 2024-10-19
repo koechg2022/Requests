@@ -108,7 +108,9 @@ namespace requests {
             if (this->path.empty()) {
                 this->path = "/";
             }
-
+            while (string_functions::same_char(this->path[0], '/')) {
+                this->path = this->path.substr(1);
+            }
             // std::vector<std::string> addresses = networking::resolve_hostname(this->client.host_name());
             // std::printf("Resolved IP addresses:\n");
             // for (std::vector<std::string>::const_iterator address = addresses.begin(); address NOT addresses.end(); address++) {
@@ -120,7 +122,8 @@ namespace requests {
                                         "Connection: " + this->Connection + ending +
                                         "User-Agent: " + this->User_agent + ending +
                                         ending;
-                
+
+            std::printf("\nhttp_msg is \"%s\"\n", http_msg.c_str());
 
             
             if (not this->client.connect_client()) {
