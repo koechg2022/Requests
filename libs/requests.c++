@@ -109,6 +109,11 @@ namespace requests {
                 this->path = "/";
             }
 
+            // std::vector<std::string> addresses = networking::resolve_hostname(this->client.host_name());
+            // std::printf("Resolved IP addresses:\n");
+            // for (std::vector<std::string>::const_iterator address = addresses.begin(); address NOT addresses.end(); address++) {
+            //     std::printf("\t%s\n", address->c_str());
+            // }
 
             const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + "\r\n" +
                                         "Host: " + this->client.host_name() + ":" + this->client.port_value() + "\r\n" +

@@ -69,5 +69,5 @@
     #define IN_RANGE_INCLUDE(a, b, c) (a <= b and b <= c)
     #define CASE_DIFF 'a' - 'A'
     #define prev -1
-
+    #define NOT !=
 #endif
