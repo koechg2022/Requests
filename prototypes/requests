@@ -60,7 +60,7 @@ namespace requests {
 
             public:
 
-                http(const std::string url, const std::string user_agent = "Don't Worry about it", const std::string accept_lang = "en-US", const std::string accept_ = "text/html", const std::string accept_encoding = "gzip, deflate", const std::string connection = "Keep-Alive", const std::string http_version = "1.1");
+                http(const std::string url, const std::string user_agent = "honpwc https_get 1.0", const std::string accept_lang = "en-US", const std::string accept_ = "text/html", const std::string accept_encoding = "gzip, deflate", const std::string connection = "close", const std::string http_version = "1.1");
 
                 
                 ~http();

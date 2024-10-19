@@ -114,12 +114,12 @@ namespace requests {
             // for (std::vector<std::string>::const_iterator address = addresses.begin(); address NOT addresses.end(); address++) {
             //     std::printf("\t%s\n", address->c_str());
             // }
-
-            const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + "\r\n" +
-                                        "Host: " + this->client.host_name() + ":" + this->client.port_value() + "\r\n" +
-                                        "Connection: " + this->Connection + "\r\n" +
-                                        "User-Agent: " + this->User_agent + "\r\n" +
-                                        "\r\n";
+            const std::string ending = "\r\n";
+            const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + ending +
+                                        "Host: " + this->client.host_name() + ":" + this->client.port_value() + ending +
+                                        "Connection: " + this->Connection + ending +
+                                        "User-Agent: " + this->User_agent + ending +
+                                        ending;
                 
 
             
