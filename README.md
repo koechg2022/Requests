@@ -1,5 +1,9 @@
 # Requests
 
+**A C++ version of the python requests library**
+
+# To Build
+
 To create the build for this `requests` library, create a buld directory if it doesn't already exist, and `cd` into it.
 Then run the command:
 
