@@ -26,6 +26,7 @@ namespace requests {
         
         else {
             // There is no protocol defined
+            // protocol = "https";
             start = current = 0;
         }
 
@@ -91,6 +92,7 @@ namespace requests {
             std::printf("Parsed the url:\n");
             this->path = (this->path.empty()) ? "/" : this->path;
             this->http_version = http_version;
+            port = (string_functions::same_string(protocol, "https")) ? "443" : port;
             this->client = networking::network_structures::tcp_client(host_name, port);
             this->User_agent = user_agent;
             this->Accept_Language = accept_lang;
@@ -134,12 +136,12 @@ namespace requests {
             // Accept-Language: en-US,en;q=0.5
             // Accept-Encoding: gzip, deflate, br
             // Connection: keep-alive
-
-            const std::string http_msg = "GET " + this->path + " HTTP/1.1" + ending +
+            
+            const std::string http_msg = "GET /" + this->path + " HTTP/1.1" + ending +
                               "Host: " + this->client.host_name() + ending +
                               ending;
 
-            std::printf("\nhttp_msg is \"%s\"\n", http_msg.c_str());
+            std::printf("\nhttp_msg is:\n\n\"%s\"\n\n", http_msg.c_str());
 
             
             if (not this->client.connect_client()) {
