@@ -26,7 +26,7 @@ namespace requests {
         
         else {
             // There is no protocol defined
-            // protocol = "https";
+            protocol = "http";
             start = current = 0;
         }
 
@@ -141,7 +141,7 @@ namespace requests {
                               "Host: " + this->client.host_name() + ending +
                               ending;
 
-            std::printf("\nhttp_msg is:\n\n\"%s\"\n\n", http_msg.c_str());
+            std::printf("\nhttp_msg is:\n\n\"%s\"\n\n on port %s\n", http_msg.c_str(), this->client.port_value().c_str());
 
             
             if (not this->client.connect_client()) {
