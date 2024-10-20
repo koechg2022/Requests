@@ -111,17 +111,33 @@ namespace requests {
             while (string_functions::same_char(this->path[0], '/')) {
                 this->path = this->path.substr(1);
             }
-            // std::vector<std::string> addresses = networking::resolve_hostname(this->client.host_name());
-            // std::printf("Resolved IP addresses:\n");
-            // for (std::vector<std::string>::const_iterator address = addresses.begin(); address NOT addresses.end(); address++) {
-            //     std::printf("\t%s\n", address->c_str());
-            // }
+            
             const std::string ending = "\r\n";
-            const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + ending +
-                                        "Host: " + this->client.host_name() + ":" + this->client.port_value() + ending +
-                                        "Connection: " + this->Connection + ending +
-                                        "User-Agent: " + this->User_agent + ending +
-                                        ending;
+            // const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + ending +
+            //                             "Host: " + this->client.host_name() + ":" + this->client.port_value() + ending +
+            //                             "Connection: " + this->Connection + ending +
+            //                             "User-Agent: " + this->User_agent + ending +
+            //                             ending;
+
+
+            // const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + ending +
+            //                             "Host: " + this->client.host_name() + ending +
+            //                             "Connection: " + this->Connection + ending +
+            //                             "User-Agent: " + this->User_agent + ending +
+            //                             ending;
+
+            
+            // GET /path/resource HTTP/1.1
+            // Host: example.com
+            // User-Agent: Brave/Version
+            // Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+            // Accept-Language: en-US,en;q=0.5
+            // Accept-Encoding: gzip, deflate, br
+            // Connection: keep-alive
+
+            const std::string http_msg = "GET " + this->path + " HTTP/1.1" + ending +
+                              "Host: " + this->client.host_name() + ending +
+                              ending;
 
             std::printf("\nhttp_msg is \"%s\"\n", http_msg.c_str());
 
@@ -257,6 +273,38 @@ namespace requests {
             client.disconnect_client();
 
             return (http_response) { header,answer_body};
+        }
+
+        http_response http::head() {
+            std::map<std::string, std::vector<std::string> > header;
+            std::string answer_body;
+
+            // HEAD /path/to/resource HTTP/1.1
+            // Host: example.com
+            // Accept: */*
+            // Accept-Language: en-US
+            // User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3
+
+
+            if (this->path.empty()) {
+                this->path = "/";
+            }
+            while (string_functions::same_char(this->path[0], '/')) {
+                this->path = this->path.substr(1);
+            }
+            
+            const std::string ending = "\r\n";
+            const std::string http_msg = "HEAD /" + this->path + " HTTP/" + this->http_version + ending +
+                                        "Host:" + this->client.host_name() + ending +
+                                        "Connection: " + this->Connection + ending +
+                                        "User-Agent: " + this->User_agent + ending +
+                                        ending;
+
+            std::printf("\nhttp_msg is \"%s\"\n", http_msg.c_str());
+
+
+
+            return (http_response) {header, answer_body};
         }
 
 

@@ -80,10 +80,10 @@ namespace requests {
                 *
                 *   @brief Use to get a resource from a remote http machine
                 *
-                *   @returns `true` if the request was successfully sent, `false` otherwise.
+                *   @returns A `http_response` with the response from the server.
                 *
                 */
-                bool head();
+                http_response head();
 
                 
                 /**
