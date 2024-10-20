@@ -4,6 +4,8 @@
 
 # To Build
 
+****This will create an executable based off the requests_tests.c++ file****
+
 To create the build for this `requests` library, create a buld directory if it doesn't already exist, and `cd` into it.
 Then run the command:
 
