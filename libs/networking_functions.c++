@@ -606,6 +606,8 @@ namespace networking {
             if (this->connected) {
                 this->connected = false;
             }
+            close_socket(this->connect_socket);
+            this->connect_socket = invalid_socket;
             return false;
         }
 

@@ -129,6 +129,12 @@
 
     #endif
 
+    #include <openssl/crypto.h>
+    #include <openssl/x509.h>
+    #include <openssl/pem.h>
+    #include <openssl/ssl.h>
+    #include <openssl/err.h>
+
     #define buffer_size 100
     #define kilo_byte 1024
     #define four_kilo_bytes 4096

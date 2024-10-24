@@ -84,232 +84,88 @@ namespace requests {
 
     namespace http_requests {
 
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        ////////////////////////////////////////////////////////////////////////////
+        //---------------------------------https----------------------------------//
 
-        http::http(const std::string url, const std::string user_agent, const std::string accept_lang, const std::string accept_, const std::string accept_encoding, const std::string connection, const std::string http_version) {
-            
-            std::string host_name, port, protocol;
-            parse_url(url, protocol, host_name, port, this->path, this->hash);
-            std::printf("Parsed the url:\n");
-            this->path = (this->path.empty()) ? "/" : this->path;
-            this->http_version = http_version;
-            port = (string_functions::same_string(protocol, "https")) ? "443" : port;
-            this->client = networking::network_structures::tcp_client(host_name, port);
-            this->User_agent = user_agent;
-            this->Accept_Language = accept_lang;
-            this->Accept = accept_;
-            this->Accept_Encoding = accept_encoding;
-            this->Connection = connection;
+        request::request() {
+            this->initialized_ssl = false;
+            this->ssl = NULL;
+            this->context = NULL;
         }
 
-        http::~http() {
-            this->client.disconnect_client();
+        request& request::url(const std::string url_link) {
+            if (this->client.client_is_connected()) {
+                throw networking::exceptions::unexpected_exception(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + ". Cannot add and connect a new URL while client is currently connected to another host");
+            }
+            std::string hostname, port, protocol;
+            parse_url(url_link, protocol, hostname, port, this->path, this->hash);
+            this->client = networking::network_structures::tcp_client(hostname, port);
+            if (not string_functions::same_string(hostname, this->client.host_name())) {
+                throw networking::exceptions::unexpected_exception(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + ". Failed to update new connection information.");
+            }
+
+            // To get here, the client has been successfully updated.
+            return *this;
         }
 
-        http_response http::get() {
+        http_response request::get(std::map<std::string, std::vector<std::string> > headers) {
+            SSL_library_init();
+            OpenSSL_add_all_algorithms();
+            SSL_load_error_strings();
 
-            if (this->path.empty()) {
-                this->path = "/";
+            SSL_CTX* context = SSL_CTX_new(TLS_client_method());
+            if (not context) {
+                throw networking::exceptions::unexpected_exception(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev prev) + ". Failed to create SSL context.");
             }
-            while (string_functions::same_char(this->path[0], '/')) {
-                this->path = this->path.substr(1);
-            }
-            
-            const std::string ending = "\r\n";
-            // const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + ending +
-            //                             "Host: " + this->client.host_name() + ":" + this->client.port_value() + ending +
-            //                             "Connection: " + this->Connection + ending +
-            //                             "User-Agent: " + this->User_agent + ending +
-            //                             ending;
 
-
-            // const std::string http_msg = "GET /" + this->path + " HTTP/" + this->http_version + ending +
-            //                             "Host: " + this->client.host_name() + ending +
-            //                             "Connection: " + this->Connection + ending +
-            //                             "User-Agent: " + this->User_agent + ending +
-            //                             ending;
-
-            
-            // GET /path/resource HTTP/1.1
-            // Host: example.com
-            // User-Agent: Brave/Version
-            // Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
-            // Accept-Language: en-US,en;q=0.5
-            // Accept-Encoding: gzip, deflate, br
-            // Connection: keep-alive
-            
-            const std::string http_msg = "GET /" + this->path + " HTTP/1.1" + ending +
-                              "Host: " + this->client.host_name() + ending +
-                              ending;
-
-            std::printf("\nhttp_msg is:\n\n\"%s\"\n\n on port %s\n", http_msg.c_str(), this->client.port_value().c_str());
-
-            
             if (not this->client.connect_client()) {
-                throw networking::exceptions::connect_failure("Failed to connect to server.\n");
+                this->client.disconnect_client();
+                throw networking::exceptions::connect_failure(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev prev) + ". Failed to connect client to remote host");
             }
 
-
-            const ssize_t sent = send(client.get_connection_socket(), http_msg.c_str(), http_msg.length(), 0);
-
-            if (sent < 1) {
-                throw networking::exceptions::unexpected_exception("Failed to send request message.\n");
+            SSL* ssl = SSL_new(context);
+            if (not ssl) {
+                throw networking::exceptions::connect_failure(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev prev) + ". Failed to create the SSL tunnel instance to use for communication");
             }
 
-            std::printf("Sent http request of size %lu of size %lu\n", sent, http_msg.length());
-
-            std::string response_status;
-            http_header header;
-            std::map<std::string, std::set<std::string> > answer_mapping;
-            std::string answer_body;
-            char response[response_size + 1];
-            char *p = response, *q, *body = 0;
-            char* end = response + response_size;
-            enum {length, chunked, connection};
-            int encoding = 0, remaining = 0;
-            ssize_t bytes_received;
-
-            const std::clock_t start_time = std::clock();
-
-            while (client.client_is_connected()) {
-
-                if (((double) (std::clock() - start_time)) / CLOCKS_PER_SEC > TIMEOUT) {
-                    std::fprintf(stderr, "timeout after %.2f seconds.\n", TIMEOUT);
-                    client.disconnect_client();
-                }
-
-                if (p is end) {
-                    std::fprintf(stderr, "Out of buffer space.\n");
-                    client.disconnect_client();
-                    break;
-                }
-
-                if (client.server_has_message()) {
-
-                    bytes_received = recv(client.get_connection_socket(), p, end - p, 0);
-
-                    if (bytes_received < 1) {
-                        if (encoding is connection and body) {
-                            std::printf("%.*s", (int) (end - body), body);
-                        }
-
-                        std::printf("\nConnection closed by peer.\n");
-                        break;
-                    }
-
-                    p = p + bytes_received;
-                    *p = 0;
-
-                    // For headers
-                    if (not body and (body = std::strstr(response, "\r\n\r\n"))) {
-                        *body = 0;
-                        body = body + 4;
-
-                        std::printf("Received Headers:\n%s\n", response);
-
-                        q = std::strstr(response, "\nContent-Length: ");
-
-                        if (q) {
-                            encoding = length;
-                            q = std::strchr(q, ' ');
-                            q = q + 1;
-                            remaining = strtol(q, 0, 10);
-
-                        }
-
-                        else {
-                            q = std::strstr(response, "\nTransfer-Encoding: chunked");
-
-                            if (q) {
-                                encoding = chunked;
-                                remaining = 0;
-                            }
-
-                            else {
-                                encoding = connection;
-                            }
-                        }
-                        std::printf("\nReceived Body:\n");
-                    }
-
-                    if (body) {
-
-                        if (encoding is length) {
-                            if (p - body >= remaining) {
-                                std::printf("%.*s", remaining, body);
-                                break;
-                            }
-                        }
-
-                        else if (encoding is chunked) {
-                            do {
-
-                                if (remaining is 0) {
-                                    if ((q = std::strstr(body, "\r\n"))) {
-                                        remaining = strtol(body, 0, 16);
-                                        if (not remaining) goto finish;
-                                        body = q + 2;
-                                    }
-
-                                    else {
-                                        break;
-                                    }
-                                }
-
-                                if (remaining and p - body >= remaining) {
-                                    std::printf("%.*s", remaining, body);
-                                    body = body + remaining + 2;
-                                    remaining = 0;
-                                }
-
-                            } while (not remaining);
-                        }
-
-                    }
-
-                }
-
+            if (not SSL_set_tlsext_host_name(ssl, this->client.host_name().c_str())) {
+                throw networking::exceptions::getaddrinfo_failure(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev) + ". Failed to set the hostname for the server.");
             }
-            finish:
 
-            std::printf("\nClosing socket...\n");
-            client.disconnect_client();
+            SSL_set_fd(ssl, this->client.get_connection_socket());
+            if (SSL_connect(ssl) == -1) {
+                throw networking::exceptions::connect_failure(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev) + ". Failed to connect the secure tunnel.");
+            }
 
-            return (http_response) { header,answer_body};
+            X509* certificate = SSL_get_peer_certificate(ssl);
+
+            if (not certificate) {
+                this->client.disconnect_client();
+                SSL_shutdown(ssl);
+                SSL_free(ssl);
+                SSL_CTX_free(context);
+            }
+
+            SSL_shutdown(ssl);
+            this->client.disconnect_client();
+            SSL_free(ssl);
+            SSL_CTX_free(context);
+
+            http_response the_answer;
+
+            return the_answer;
         }
 
-        http_response http::head() {
-            std::map<std::string, std::vector<std::string> > header;
-            std::string answer_body;
-
-            // HEAD /path/to/resource HTTP/1.1
-            // Host: example.com
-            // Accept: */*
-            // Accept-Language: en-US
-            // User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3
-
-
-            if (this->path.empty()) {
-                this->path = "/";
-            }
-            while (string_functions::same_char(this->path[0], '/')) {
-                this->path = this->path.substr(1);
-            }
-            
-            const std::string ending = "\r\n";
-            const std::string http_msg = "HEAD /" + this->path + " HTTP/" + this->http_version + ending +
-                                        "Host:" + this->client.host_name() + ending +
-                                        "Connection: " + this->Connection + ending +
-                                        "User-Agent: " + this->User_agent + ending +
-                                        ending;
-
-            std::printf("\nhttp_msg is \"%s\"\n", http_msg.c_str());
-
-
-
-            return (http_response) {header, answer_body};
-        }
-
-
+        //--------------------------------https-end-------------------------------//
 
     }
 
