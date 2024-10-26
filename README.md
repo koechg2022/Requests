@@ -27,7 +27,7 @@ run:
 
 # Current Issues
 
-    * I have no idea if the code will work... My guess is it won't, but that's what tomorrow is for. :D
+    I have no idea if the code will work... My guess is it won't, but that's what tomorrow is for. :D
 
 
 # Resolutions (in progress)
