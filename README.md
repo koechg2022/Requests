@@ -27,10 +27,10 @@ run:
 
 # Current Issues
 
-    I have no idea if the code will work... My guess is it won't, but that's what tomorrow is for. :D
+I have no idea if the code will work... My guess is it won't, but that's what tomorrow is for. :D
 
 
 # Resolutions (in progress)
 
-    Currently the only url that seems to work is `example.com`. More debugging need to occur to find out why this keeps happening.
-        I got in contact with ([Lews Van Winkle](https://codeplea.com/about)) the author of a wonderful book on network programming in C ([Hands On Network Programming in C](https://handsonnetworkprogramming.com/)) and he explained the problem I was experiencing here. He then told me how I could find the solution. I got the architecture figured out and I coded most of it. I need to start testing it and debugging though.
+Currently the only url that seems to work is `example.com`. More debugging need to occur to find out why this keeps happening.
+    I got in contact with ([Lews Van Winkle](https://codeplea.com/about)) the author of a wonderful book on network programming in C ([Hands On Network Programming in C](https://handsonnetworkprogramming.com/)) and he explained the problem I was experiencing here. He then told me how I could find the solution. I got the architecture figured out and I coded most of it. I need to start testing it and debugging though.
