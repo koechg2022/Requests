@@ -1,100 +1,180 @@
 
 
-
 #include "networking_functions"
 
 
-// HTTPS headers
-    // Range: string (specifies ranges, e.g., bytes)
-    // Referer: string
-    // Origin: string
-    // Upgrade: string (can specify protocols)
-    // Cache-Control: list (of directives)
-    // Pragma: string (can specify directives)
-    // Expect: string (specifies expectations)
-    // X-Requested-With: string
-    // DNT (Do Not Track): boolean (1 or 0)
-    // TE (Transfer Encoding): list (of encoding types)
-
-namespace requests {
 
 
-    namespace http_requests {
+/*
+Request Headers:                              Response Headers:                          General Headers:
+- Accept: list                                - Accept-Ranges: string                     - Connection: string
+- Accept-Charset: list                         - Age: integer                              - Date: string
+- Accept-Encoding: list                        - Allow: list                               - Pragma: string
+- Accept-Language: list                        - Cache-Control: list                        - Trailer: list
+- Authorization: string                        - Content-Disposition: string                - Transfer-Encoding: string
+- Cache-Control: list                          - Content-Encoding: string                   - Upgrade: string
+- Connection: string                           - Content-Length: integer                    - Via: list
+- Content-Length: integer                      - Content-Type: string                       
+- Content-Type: string                         - Date: string                              
+- Date: string                                - ETag: string                              
+- Expect: string                              - Expires: string                            
+- Host: string                                - Last-Modified: string                      
+- If-Modified-Since: string                    - Link: list                                 
+- If-None-Match: string                       - Location: string                            
+- Range: string                               - Proxy-Authenticate: string                 
+- Referer: string                             - Retry-After: string or integer            
+- User-Agent: string                          - Server: string                             
+- Cookie: list                                - Set-Cookie: list                           
+- X-Requested-With: string                    - Strict-Transport-Security: string          
+- DNT (Do Not Track): boolean                 - Transfer-Encoding: string                  
+                                                - WWW-Authenticate: string                  
+*/
 
-        // HTTP Response codes
-        namespace response_codes {
-            const std::string 
-                OK = "200",
-                MOVED_PERMANENTLY = "301",
-                MOVED_TEMPORARILY = "307",
-                BAD_REQUEST = "400",
-                UNAUTHORIZED = "401",
-                FORBIDDEN = "403",
-                INTERNAL_SERVER_ERROR = "500";
 
-        }
+namespace requests_library {
 
-        typedef std::map<std::string, std::vector<std::string> > http_header;
 
-        const http_header empty_header;
+    // HTTP Response codes
+    namespace response_codes {
+        const std::string 
+            OK = "200",
+            MOVED_PERMANENTLY = "301",
+            MOVED_TEMPORARILY = "307",
+            BAD_REQUEST = "400",
+            UNAUTHORIZED = "401",
+            FORBIDDEN = "403",
+            INTERNAL_SERVER_ERROR = "500";
+    }
 
-        typedef struct http_response {
-            http_header header;
+
+    /**
+    *
+    *   @brief Testing out the linker.
+    *
+    *   @param arg (`char*`) : The string to print.
+    *
+    *   @param len (`const int`) : The length of the args char*[].
+    *
+    */
+    void tester(char** args, const int len);
+
+
+    /**
+    *
+    *   @brief Parse a url and retrieve from it a hostname, a port, a path, and a hash.
+    *
+    *   @param url (`const std::string`) : The url to parse the other values out of.
+    *
+    *   @param host_name (std::string&) : The reference to fill with the hostname embedded in the url.
+    *
+    *   @param port (std::string&) : The reference to fill with the port embedded in the url.
+    *
+    *   @param path (std::string&) : The reference to fill with the path embeded in the url.
+    *
+    *   @param hash (std::string&) : The reference to fill with the hash embedded in the url.
+    *
+    *   @returns void
+    *
+    */
+    void parse_url(const std::string& url, std::string& protocol, std::string& hostname, std::string& port, std::string& path, std::string& hash, const std::string default_protocol = "https");
+
+    class requests;
+
+    namespace request_structures {
+
+        typedef struct {
+            std::map<std::string, std::vector<std::string> > header;
             std::string body;
         } http_response;
 
-        typedef enum {
-            length, 
-            chunked,
-            connection
-        } encodings;
 
-
-        /**
-        *
-        *   @brief Parse a url and retrieve from it a hostname, a port, a path, and a hash.
-        *
-        *   @param url (`const std::string`) : The url to parse the other values out of.
-        *
-        *   @param host_name (std::string&) : The reference to fill with the hostname embedded in the url.
-        *
-        *   @param port (std::string&) : The reference to fill with the port embedded in the url.
-        *
-        *   @param path (std::string&) : The reference to fill with the path embeded in the url.
-        *
-        *   @param hash (std::string&) : The reference to fill with the hash embedded in the url.
-        *
-        *
-        */
-        void parse_url(const std::string& url, std::string& protocol, std::string& host_name, std::string& port, std::string& path, std::string& hash);
-
-        class request {
-
-            private:
+        class http {
+            
+            protected:
                 networking::network_structures::tcp_client client;
-                bool initialized_ssl;
-                SSL_CTX* context;
-                SSL* ssl;
-                std::string path, hash;
-
-
+                std::map<std::string, std::vector<std::string> > arguments;
+                const std::string PATH = "/", 
+                                    CONNECTION = "Connection", 
+                                    USER_AGENT = "User-Agent";
+                bool was_init;
+                friend requests;
+            
             public:
 
-                request();
+                http();
+
+                http(const std::string url);
+
+                ~http();
+
+                virtual bool connect();
+
+                virtual bool disconnect();
+
+                bool sethost(const std::string new_host);
+                
+                std::string gethost() const;
+
+                bool setport(const std::string new_port);
+
+                std::string getport() const;
+        };
 
 
-                request& url(const std::string url_link);
+        class https : public http {
 
+            private:
 
-                http_response get(std::map<std::string, std::vector<std::string> > headers = empty_header);
+                SSL_CTX* context;
+                SSL* ssl_socket;
+                X509* certificate;
 
+                bool initialized_tls_stuff;
 
+                bool initialize();
+                
+            
+            public:
+
+                https();
+
+                https(const std::string url);
+
+                ~https();
+
+                bool connect();
+
+                bool disconnect();
 
         };
 
     }
 
 
+    class requests {
 
+        private:
+
+            request_structures::http http;
+            request_structures::https https;
+            std::map<std::string, std::vector<std::string> > arguments;
+
+        public:
+
+            requests();
+
+            requests(const std::string url);
+
+            request_structures::http_response get();
+
+            request_structures::http_response post();
+
+            request_structures::http_response delete_();
+
+            request_structures::http_response pull();
+
+            request_structures::http_response custom(const std::string method, const std::map<std::string, std::vector<std::string> > headers);
+
+    };
 
 }
