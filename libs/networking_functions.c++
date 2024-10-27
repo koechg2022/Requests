@@ -584,8 +584,8 @@ namespace networking {
                             address_buff, buffer_size, serv_buff, buffer_size, 
                             NI_NUMERICHOST);
                 std::printf("%s %s\n", address_buff, serv_buff);
-                std::printf("\nCreating socket:\n");
-                this->create_socket();
+                std::printf("\nCreating socket: %s\n", (this->create_socket()) ? "successfully" : "failure");
+                // this->create_socket();
                 return this->connected;
                 if (connect(this->connect_socket, this->connect_address->ai_addr, this->connect_address->ai_addrlen)) {
                     std::fprintf(stderr, "Failing with error \"%s\"\n", strerror(socket_error));
