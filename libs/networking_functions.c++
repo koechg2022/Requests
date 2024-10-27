@@ -66,7 +66,7 @@ namespace networking {
                 #else
 
                     case (AF_NETLINK) : {
-                        the_answer = network_address_families::netlink_address;
+                        the_answer = network_address_families::netlink_address_family;
                         break;
                     }
 
