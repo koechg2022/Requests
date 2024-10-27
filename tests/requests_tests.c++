@@ -39,8 +39,8 @@ int main(int len, char** args) {
     // Attempt simple http request
     std::printf("For http:\n");
     request_http.get();
-    std::printf("For https:\n");
-    request_https.get();
+    // std::printf("For https:\n");
+    // request_https.get();
 
 
     std::printf("Reached.\n");

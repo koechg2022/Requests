@@ -579,15 +579,15 @@ namespace networking {
 
                 this->create_address();
                 this->create_socket();
-                // std::printf("The address is created %s\n", (this->connect_address is NULL) ? "false" : "true");
-                // std::printf("The socket is created %s\n", (this->connect_socket is invalid_socket) ? "false" : "true");
-                if (connect(this->connect_socket, this->connect_address->ai_addr, this->connect_address->ai_addrlen) != 0) {
+                std::printf("The address is created %s\n", (this->connect_address is NULL) ? "false" : "true");
+                std::printf("The socket is created %s\n", (this->connect_socket is invalid_socket) ? "false" : "true");
+                if (connect(this->connect_socket, this->connect_address->ai_addr, this->connect_address->ai_addrlen)) {
                     std::fprintf(stderr, "Failing with error \"%s\"\n", strerror(socket_error));
                     (clean_on_except) ? uninitialize_network() : true;
                     (this->del_on_except) ? this->~tcp_client() : (void) 0;
                     throw exceptions::connect_failure("\"" + std::string(__FILE__) + "\":line: " + std::to_string(__LINE__ prev prev prev) + " : Error number " + std::to_string(socket_error) + ". Failed to connect the client.");
                 }
-                // std::printf("Reached.\n");
+                std::printf("Reached.\n");
                 this->connected = true;
 
             }
