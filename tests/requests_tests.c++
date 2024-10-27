@@ -28,6 +28,10 @@ int main(int len, char** args) {
     std::printf("\tPath: \"%s\"\n", path.c_str());
     std::printf("\tHash: \"%s\"\n", hash.c_str());
 
+    requests_library::requests request_http(std::string((*args + 1)));
+    requests_library::requests request_https(std::string(*args + 1), true);
+
     std::printf("Reached.\n");
+
     return 0;
 }

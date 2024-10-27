@@ -92,10 +92,6 @@ namespace requests_library {
             
             protected:
                 networking::network_structures::tcp_client client;
-                std::map<std::string, std::vector<std::string> > arguments;
-                const std::string PATH = "/", 
-                                    CONNECTION = "Connection", 
-                                    USER_AGENT = "User-Agent";
                 bool was_init;
                 friend requests;
             
@@ -118,6 +114,10 @@ namespace requests_library {
                 bool setport(const std::string new_port);
 
                 std::string getport() const;
+
+                operator bool() {
+                    return not this->client.host_name().empty() and not this->client.port_value().empty();
+                }
         };
 
 
@@ -154,16 +154,21 @@ namespace requests_library {
     class requests {
 
         private:
-
+            typedef enum {not_secure, secure_} connection_type;
+            connection_type what_to_use;
             request_structures::http http;
             request_structures::https https;
+            const std::string CONNECTION = "Connection", 
+                    USER_AGENT = "User-Agent";
             std::map<std::string, std::vector<std::string> > arguments;
 
         public:
 
-            requests();
+            requests(bool secure = false);
 
-            requests(const std::string url);
+            requests(const std::string url, bool secure = false);
+
+            ~requests();
 
             request_structures::http_response get();
 

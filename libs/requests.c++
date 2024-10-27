@@ -120,8 +120,8 @@ namespace requests_library {
         }
 
         
-        // √ port is 80 and protocol is http. Good to go. √
-        this->arguments.insert({this->PATH, std::vector<std::string>{path}});
+        this->client.host_name(host);
+        this->client.port_value(port);
 
     }
 
@@ -186,7 +186,7 @@ namespace requests_library {
     /////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////
-    //---------------------------------http--------------------------------//
+    //---------------------------------https-------------------------------//
 
     bool request_structures::https::initialize() {
         SSL_library_init();
@@ -208,6 +208,7 @@ namespace requests_library {
         this->certificate = NULL;
         this->ssl_socket = NULL;
         this->initialized_tls_stuff = false;
+        this->client.port_value("443");
     }
 
     request_structures::https::~https() {
@@ -293,5 +294,52 @@ namespace requests_library {
     }
 
     //---------------------------------http-end----------------------------//
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////
+    //---------------------------------requests----------------------------//
+
+    requests::requests(bool secure) {
+        this->what_to_use = (secure) ? secure_ : not_secure;
+        if (this->what_to_use is secure_) {
+            this->https = request_structures::https();
+        }
+        else {
+            this->http = request_structures::http();
+        }
+    }
+
+    requests::requests(const std::string url, bool secure) {
+        std::string protocol, host, port, path, hash;
+        this->what_to_use = (secure) ? secure_ : not_secure;
+        parse_url(url, protocol, host, port, path, hash);
+        if (this->what_to_use is secure_) {
+            this->https = request_structures::https(url);
+        }
+        else {
+            this->http = request_structures::http(url);
+        }
+    }
+
+    requests::~requests() {
+        if (this->what_to_use is secure_) {
+            this->https.disconnect();
+        }
+        else {
+            this->http.disconnect();
+        }
+    }
+
+
+
+
+
+    //------------------------------requests-end---------------------------//
 
 }
