@@ -49,18 +49,6 @@ namespace requests_library {
 
     /**
     *
-    *   @brief Testing out the linker.
-    *
-    *   @param arg (`char*`) : The string to print.
-    *
-    *   @param len (`const int`) : The length of the args char*[].
-    *
-    */
-    void tester(char** args, const int len);
-
-
-    /**
-    *
     *   @brief Parse a url and retrieve from it a hostname, a port, a path, and a hash.
     *
     *   @param url (`const std::string`) : The url to parse the other values out of.
@@ -78,77 +66,10 @@ namespace requests_library {
     */
     void parse_url(const std::string& url, std::string& protocol, std::string& hostname, std::string& port, std::string& path, std::string& hash, const std::string default_protocol = "https");
 
-    class requests;
-
-    namespace request_structures {
-
-        typedef struct {
-            std::map<std::string, std::vector<std::string> > header;
-            std::string body;
-        } http_response;
-
-
-        // class http {
-            
-        //     protected:
-        //         networking::network_structures::tcp_client client;
-        //         bool was_init;
-        //         friend requests;
-            
-        //     public:
-
-        //         http();
-
-        //         http(const std::string url);
-
-        //         ~http();
-
-        //         virtual bool connect();
-
-        //         virtual bool disconnect();
-
-        //         bool sethost(const std::string new_host);
-                
-        //         std::string gethost() const;
-
-        //         bool setport(const std::string new_port);
-
-        //         std::string getport() const;
-
-        //         operator bool() {
-        //             return not this->client.host_name().empty() and not this->client.port_value().empty();
-        //         }
-        // };
-
-
-        // class https : public http {
-
-        //     private:
-
-        //         SSL_CTX* context;
-        //         SSL* ssl_socket;
-        //         X509* certificate;
-
-        //         bool initialized_tls_stuff;
-
-        //         bool initialize();
-                
-            
-        //     public:
-
-        //         https();
-
-        //         https(const std::string url);
-
-        //         ~https();
-
-        //         bool connect();
-
-        //         bool disconnect();
-
-        // };
-
-    }
+    typedef struct {
+        std::map<std::string, std::vector<std::string> > header;
+        std::string body;
+    } http_response;
 
 
     class requests {
@@ -168,15 +89,15 @@ namespace requests_library {
 
             ~requests();
 
-            request_structures::http_response get();
+            http_response get();
 
-            request_structures::http_response post();
+            http_response post();
 
-            request_structures::http_response delete_();
+            http_response delete_();
 
-            request_structures::http_response pull();
+            http_response pull();
 
-            request_structures::http_response custom(const std::string method, const std::map<std::string, std::vector<std::string> > headers);
+            http_response custom(const std::string method, const std::map<std::string, std::vector<std::string> > headers);
 
     };
 

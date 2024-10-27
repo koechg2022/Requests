@@ -316,22 +316,20 @@ namespace requests_library {
         this->client.disconnect_client();
     }
 
-    request_structures::http_response requests::get() {
+    http_response requests::get() {
         
         std::string protocol, host, port, path, hash;
         
         parse_url(this->URL, protocol, host, port, path, hash, (this->what_to_use is secure_) ? "https" : "http");
         
-        std::printf("hostname is %s\n", host.c_str());
-        std::printf("port is %s\n", port.c_str());
+        
         this->client.host_name(host);
         this->client.port_value(port);
-
-        this->client.connect_client();
-        std::printf("Client is connected.\n");
         
-        this->client.disconnect_client();
-        request_structures::http_response the_answer;
+        std::printf("this->client.host_name is \"%s\"\n", this->client.host_name().c_str());
+        std::printf("this->client.port_value is \"%s\"\n", this->client.port_value().c_str());
+
+        http_response the_answer;
 
         return the_answer;
     }
