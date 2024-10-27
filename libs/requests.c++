@@ -322,6 +322,11 @@ namespace requests_library {
         
         parse_url(this->URL, protocol, host, port, path, hash, (this->what_to_use is secure_) ? "https" : "http");
         
+        std::vector<std::string> addresses = networking::resolve_hostname(host, port);
+        std::printf("IP addresses for host \"%s\":\n", host.c_str());
+        for (std::vector<std::string>::const_iterator address = addresses.begin(); address NOT addresses.end(); address++) {
+            std::printf("\t%s\n", address->c_str());
+        }
         
         this->client.host_name(host);
         this->client.port_value(port);
