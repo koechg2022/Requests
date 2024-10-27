@@ -328,12 +328,29 @@ namespace requests_library {
     }
 
     requests::~requests() {
-        if (this->what_to_use is secure_) {
+        if (this->what_to_use is secure_ and this->https.client.client_is_connected()) {
             this->https.disconnect();
         }
-        else {
+        else if (this->http.client.client_is_connected()) {
             this->http.disconnect();
         }
+    }
+
+    request_structures::http_response requests::get() {
+        
+        request_structures::http_response the_answer;
+
+        if (not ((this->what_to_use is secure_) ? this->https.connect() : this->http.connect())) {
+            // Failed to connect
+            std::printf("Failed to connect");
+            return the_answer;
+        }
+
+        // Connected
+        std::printf("Connected.\n");
+        (this->what_to_use is secure_) ? this->https.disconnect() : this->http.disconnect();
+
+        return the_answer;
     }
 
 
