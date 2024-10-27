@@ -578,9 +578,15 @@ namespace networking {
             if (not this->connected) {
 
                 this->create_address();
+                std::printf("Remote address is: ");
+                char address_buff[buffer_size], serv_buff[buffer_size];
+                getnameinfo(this->connect_address->ai_addr, this->connect_address->ai_addrlen, 
+                            address_buff, buffer_size, serv_buff, buffer_size, 
+                            NI_NUMERICHOST);
+                std::printf("%s %s\n", address_buff, serv_buff);
+                return this->connected;
+                
                 this->create_socket();
-                // std::printf("The address is created %s\n", (this->connect_address is NULL) ? "false" : "true");
-                // std::printf("The socket is created %s (%d)\n", (this->connect_socket is invalid_socket) ? "false" : "true", this->connect_socket);
                 if (connect(this->connect_socket, this->connect_address->ai_addr, this->connect_address->ai_addrlen)) {
                     std::fprintf(stderr, "Failing with error \"%s\"\n", strerror(socket_error));
                     (clean_on_except) ? uninitialize_network() : true;
