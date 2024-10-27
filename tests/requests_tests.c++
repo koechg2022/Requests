@@ -33,14 +33,11 @@ int main(int len, char** args) {
 
     // Create the requests
     requests_library::requests request_http((std::string(args[1])));
-    requests_library::requests request_https((std::string(args[1])), true);
 
 
     // Attempt simple http request
     std::printf("For http:\n");
     request_http.get();
-    // std::printf("For https:\n");
-    // request_https.get();
 
 
     std::printf("Reached.\n");
