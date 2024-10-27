@@ -331,9 +331,6 @@ namespace requests_library {
         this->client.host_name(host);
         this->client.port_value(port);
         
-        std::printf("this->client.host_name is \"%s\"\n", this->client.host_name().c_str());
-        std::printf("this->client.port_value is \"%s\"\n", this->client.port_value().c_str());
-        
         
         (this->client.connect_client()) ? std::printf("Successfully connected.\n") : std::printf("Failed to connected.\n");
         
