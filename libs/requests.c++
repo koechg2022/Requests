@@ -337,7 +337,7 @@ namespace requests_library {
 
         http_response the_answer;
 
-        this->client.disconnect_client();
+        (this->client.disconnect_client()) ? std::printf("Successfully disconnected.\n") : std::printf("Failed to disconnect.\n");
         return the_answer;
     }
 
