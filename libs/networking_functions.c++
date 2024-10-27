@@ -580,7 +580,8 @@ namespace networking {
                 this->create_address();
                 this->create_socket();
                 std::printf("The address is created %s\n", (this->connect_address is NULL) ? "false" : "true");
-                std::printf("The socket is created %s\n", (this->connect_socket is invalid_socket) ? "false" : "true");
+                std::printf("The socket is created %s (%d)\n", (this->connect_socket is invalid_socket) ? "false" : "true", this->connect_socket);
+                
                 if (connect(this->connect_socket, this->connect_address->ai_addr, this->connect_address->ai_addrlen)) {
                     std::fprintf(stderr, "Failing with error \"%s\"\n", strerror(socket_error));
                     (clean_on_except) ? uninitialize_network() : true;

@@ -321,6 +321,7 @@ namespace requests_library {
         std::string protocol, host, port, path, hash;
         
         parse_url(this->URL, protocol, host, port, path, hash, (this->what_to_use is secure_) ? "https" : "http");
+        
         std::printf("hostname is %s\n", host.c_str());
         std::printf("port is %s\n", port.c_str());
         this->client.host_name(host);
