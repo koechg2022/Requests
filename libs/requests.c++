@@ -131,16 +131,19 @@ namespace requests_library {
     }
 
     bool request_structures::http::connect() {
-        
+        std::printf("First check...\n");
         if (this->client.host_name().empty()) {
             throw networking::exceptions::connect_failure(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev) + ": No hostname specified");
         }
+        std::printf("Second check...\n");
         if (this->client.port_value().empty()) {
             throw networking::exceptions::connect_failure(std::string(__FILE__) + " : " + std::string(__FUNCTION__) + " : " + std::to_string(__LINE__ prev) + ": No port specified");
         }
+        std::printf("Third check...\n");
         if (not this->client.client_is_connected()) {
             this->client.connect_client();
         }
+        std::printf("Done checking...\n");
         return this->client.client_is_connected();
     }
 
@@ -293,7 +296,7 @@ namespace requests_library {
         return true;
     }
 
-    //---------------------------------http-end----------------------------//
+    //--------------------------------https-end----------------------------//
     /////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////
