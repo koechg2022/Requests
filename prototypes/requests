@@ -88,65 +88,65 @@ namespace requests_library {
         } http_response;
 
 
-        class http {
+        // class http {
             
-            protected:
-                networking::network_structures::tcp_client client;
-                bool was_init;
-                friend requests;
+        //     protected:
+        //         networking::network_structures::tcp_client client;
+        //         bool was_init;
+        //         friend requests;
             
-            public:
+        //     public:
 
-                http();
+        //         http();
 
-                http(const std::string url);
+        //         http(const std::string url);
 
-                ~http();
+        //         ~http();
 
-                virtual bool connect();
+        //         virtual bool connect();
 
-                virtual bool disconnect();
+        //         virtual bool disconnect();
 
-                bool sethost(const std::string new_host);
+        //         bool sethost(const std::string new_host);
                 
-                std::string gethost() const;
+        //         std::string gethost() const;
 
-                bool setport(const std::string new_port);
+        //         bool setport(const std::string new_port);
 
-                std::string getport() const;
+        //         std::string getport() const;
 
-                operator bool() {
-                    return not this->client.host_name().empty() and not this->client.port_value().empty();
-                }
-        };
+        //         operator bool() {
+        //             return not this->client.host_name().empty() and not this->client.port_value().empty();
+        //         }
+        // };
 
 
-        class https : public http {
+        // class https : public http {
 
-            private:
+        //     private:
 
-                SSL_CTX* context;
-                SSL* ssl_socket;
-                X509* certificate;
+        //         SSL_CTX* context;
+        //         SSL* ssl_socket;
+        //         X509* certificate;
 
-                bool initialized_tls_stuff;
+        //         bool initialized_tls_stuff;
 
-                bool initialize();
+        //         bool initialize();
                 
             
-            public:
+        //     public:
 
-                https();
+        //         https();
 
-                https(const std::string url);
+        //         https(const std::string url);
 
-                ~https();
+        //         ~https();
 
-                bool connect();
+        //         bool connect();
 
-                bool disconnect();
+        //         bool disconnect();
 
-        };
+        // };
 
     }
 
@@ -156,15 +156,13 @@ namespace requests_library {
         private:
             typedef enum {not_secure, secure_} connection_type;
             connection_type what_to_use;
-            request_structures::http http;
-            request_structures::https https;
+            networking::network_structures::tcp_client client;
+            std::string URL;
             const std::string CONNECTION = "Connection", 
                     USER_AGENT = "User-Agent";
             std::map<std::string, std::vector<std::string> > arguments;
 
         public:
-
-            requests(bool secure = false);
 
             requests(const std::string url, bool secure = false);
 
