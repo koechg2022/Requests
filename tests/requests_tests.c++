@@ -32,8 +32,8 @@ int main(int len, char** args) {
     // requests tests
 
     // Create the requests
-    requests_library::requests request_http(std::string((*args + 1)));
-    requests_library::requests request_https(std::string(*args + 1), true);
+    requests_library::requests request_http((std::string(args[1])));
+    requests_library::requests request_https((std::string(args[1])), true);
 
 
     // Attempt simple http request
