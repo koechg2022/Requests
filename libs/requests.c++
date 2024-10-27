@@ -334,7 +334,7 @@ namespace requests_library {
         std::printf("this->client.host_name is \"%s\"\n", this->client.host_name().c_str());
         std::printf("this->client.port_value is \"%s\"\n", this->client.port_value().c_str());
 
-        this->client.connect_client();
+        // this->client.connect_client();
 
         http_response the_answer;
 
