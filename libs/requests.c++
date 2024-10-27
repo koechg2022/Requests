@@ -141,6 +141,7 @@ namespace requests_library {
         }
         std::printf("Third check...\n");
         if (not this->client.client_is_connected()) {
+            std::printf("Not connected. Connecting...\n");
             this->client.connect_client();
         }
         std::printf("Done checking...\n");
