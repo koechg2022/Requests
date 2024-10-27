@@ -328,7 +328,7 @@ namespace requests_library {
             std::printf("\t%s\n", address->c_str());
         }
         
-        this->client.host_name(host);
+        this->client.host_name(*addresses.begin());
         this->client.port_value(port);
         
         std::printf("this->client.host_name is \"%s\"\n", this->client.host_name().c_str());
