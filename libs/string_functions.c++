@@ -1,4 +1,7 @@
-#include "../prototypes/string_functions"
+
+#include "../prototypes/string_functions.h++"
+
+
 
 
 namespace string_functions {
@@ -133,11 +136,111 @@ namespace string_functions {
             FD_ZERO(&ready);
             FD_SET(STDIN_FILENO, &ready);
 
-            if (select(STDIN_FILENO + 1, &ready, 0, 0, (struct timeval*) &default_timeout) less 0) {
+            if (select(STDIN_FILENO + 1, &ready, 0, 0, &default_timeout) less 0) {
                 return false;
             }
             return FD_ISSET(STDIN_FILENO, &ready);
         #endif
     }
+
+    void strip(std::string& the_string, const std::string to_remove) {
+        // Remove leading characters
+        the_string.erase(0, the_string.find_first_not_of(to_remove));
+        
+        // Remove trailing characters
+        the_string.erase(the_string.find_last_not_of(to_remove) + 1);
+    }
+
+    void replace_all(std::string& the_string, const std::string to_replace, const std::string replace_with) {
+        size_t pos = 0;
+        while ((pos = the_string.find(to_replace, pos)) != std::string::npos) {
+            the_string.replace(pos, to_replace.length(), replace_with);
+            pos += replace_with.length(); // Move past the replacement
+        }
+    }
+
+
+    std::map<std::string, std::string> get_file_data(const std::string& file_name) {
+        std::map<std::string, std::string> the_answer;
+
+        if (!std::filesystem::exists(std::filesystem::path(file_name).lexically_normal())) {
+            std::cerr << "No file '" << file_name << "' found\n";
+            return the_answer;
+        }
+
+        std::ifstream open_file(file_name);
+        if (not open_file.is_open()) {
+            std::cerr << "Could not open file '" << file_name << "'" << std::endl;
+            return the_answer;
+        }
+
+        std::string line, key, value;
+        size_t delimiter;
+        while (std::getline(open_file, line)) {
+            delimiter = line.find_first_of(':');
+            if (delimiter != std::string::npos) {
+                key = line.substr(0, delimiter);
+                value = line.substr(delimiter + 1);
+
+                strip(key, " ");
+                strip(value, " ");
+                strip(value, "\n");
+
+                the_answer[key] = value;
+            }
+        }
+        open_file.close();
+        return the_answer;
+    }
+
+    std::map<std::string, std::vector<std::string> > get_directory_content(const std::string& file_name) {
+        
+
+        std::map<std::string, std::vector<std::string> > the_answer = {
+                        {DIRECTORY, std::vector<std::string>() },
+                        {FILE, std::vector<std::string>() }
+                        };
+        
+        for (const auto& entry : std::filesystem::directory_iterator(file_name)) {
+            the_answer[(entry.is_directory()) ? DIRECTORY : FILE].push_back(std::string(entry.path().filename().string()));
+        }
+        return the_answer;
+    }
+
+
+    // std::map<std::string, std::vector<std::string>> get_directory_content(const std::string& file_name) {
+    //     std::map<std::string, std::vector<std::string>> the_answer = {
+    //         {DIRECTORY, std::vector<std::string>()},
+    //         {FILE, std::vector<std::string>()}
+    //     };
+    
+    //     std::vector<std::filesystem::directory_entry> entries;
+    //     for (const auto& entry : std::filesystem::directory_iterator(file_name)) {
+    //         entries.push_back(entry);
+    //     }
+    
+    //     std::sort(entries.begin(), entries.end(), 
+    //         [](const auto& a, const auto& b) {
+    //             return a.path().filename() < b.path().filename();
+    //         });
+    
+    //     for (const auto& entry : entries) {
+    //         the_answer[(entry.is_directory()) ? DIRECTORY : FILE].push_back(entry.path().filename().string());
+    //     }
+    
+    //     return the_answer;
+    // }
+    
+
+
+    // template <typename data_> bool contains(std::map<std::string, data_>& to_search, const std::string& to_find_key, bool ignore_case) {
+    //     for (auto pair = to_search.begin(); pair != to_search.end(); pair++) {
+    //         if (same_string(pair->first, to_find_key, ignore_case)) {
+    //             return true;
+    //         }
+    //     }
+    //     return false;
+    // }
+
 
 }
