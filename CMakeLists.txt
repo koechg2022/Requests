@@ -1,124 +1,114 @@
 
 
 
+cmake_minimum_required(VERSION 4.0.0)
 
-
-# Use 
-
-#   cmake -DCMAKE_EXPORT_COMPILE_COMMANDS=ON ..
-
-# in the build directory
-
-
-
-
-
-# cmake_minimum_required(VERSION 3.10)
-
-# project(requests)
-
-# set(CMAKE_CXX_STANDARD 23)
-# set(CMAKE_CXX_STANDARD_REQUIRED ON)
-
-# # find the libraries
-# find_package(OpenSSL REQUIRED)
-
-# # Include directories
-# include_directories(${PROJECT_SOURCE_DIR}/headers)
-# include_directories(${PROJECT_SOURCE_DIR}/prototypes)
-# include_directories(${OPENSSL_INCLUDE_DIR})  # Add OpenSSL include directory
-
-
-# # Create output directories
-# file(MAKE_DIRECTORY ${PROJECT_SOURCE_DIR}/objects)
-
-
-# # Add source files
-# set(SOURCES
-#     ${PROJECT_SOURCE_DIR}/libs/networking_functions.c++
-#     ${PROJECT_SOURCE_DIR}/libs/string_functions.c++
-#     ${PROJECT_SOURCE_DIR}/tests/requests_tests.c++
-# )
-
-
-# # Create static libraries from source files
-# add_library(networking_functions STATIC ${PROJECT_SOURCE_DIR}/libs/networking_functions.c++)
-# add_library(string_functions STATIC ${PROJECT_SOURCE_DIR}/libs/string_functions.c++)
-# add_library(requests_ STATIC ${PROJECT_SOURCE_DIR}/libs/requests.c++)
-
-
-# # Create executables
-# add_executable(requests_tests ${PROJECT_SOURCE_DIR}/tests/requests_tests.c++)
-# target_link_libraries(requests_tests PRIVATE networking_functions string_functions requests_ ${OPENSSL_LIBRARIES})
-
-
-# # Link libraries to executables
-# target_link_libraries(requests_tests PRIVATE networking_functions string_functions requests_)
-
-# # Set output directory for the executables
-# set_target_properties(requests_tests PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${PROJECT_SOURCE_DIR}/objects)
-
-
-# # Add compiler warning flags
-# if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
-#     target_compile_options(networking_functions PRIVATE -Wall -Wextra)
-#     target_compile_options(string_functions PRIVATE -Wall -Wextra)
-#     target_compile_options(requests_ PRIVATE -Wall -Wextra)
-#     target_compile_options(requests_tests PRIVATE -Wall -Wextra)
-# elseif(MSVC)
-#     target_compile_options(requests_tests PRIVATE /W4)  # Use level 4 warnings for MSVC
-# endif()
-
-
-
-
-
-# cmake .. -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
-
-cmake_minimum_required(version 3.10)
-
-
-project(requests CXX)
+project("Requests" VERSION 0.3.0 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+set(source_extensions ".c++" ".C++" ".cpp" ".cxx" ".cc" ".CC")
+set(header_extensions ".h++" ".H++" ".hpp" ".hxx" ".hh" ".H" ".h" "")
 
-# set output directories for the executable
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/objects)
 
-# Include directories
-include_directories(
-    ${CMAKE_SOURCE_DIR}/headers
-    ${CMAKE_SOURCE_DIR}/prototypes
-    ${CMAKE_SOURCE_DIR}/libs
+include(FetchContent)
+
+set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries)
+
+FetchContent_Declare(
+    networking
+    GIT_REPOSITORY git@gitlab.com:fastest-ho-group/Networking-library.git
+    GIT_TAG version1.0
+    GIT_SHALLOW TRUE
 )
 
+FetchContent_MakeAvailable(networking)
 
-# Add source files
-set(SOURCES
-    tests/requests_tests.c++
-    libs/misc_functions.c++
-    libs/networking.c++
-    libs/string_functions.c++
+
+set(hosts "${CMAKE_CURRENT_SOURCE_DIR}/Hosts")
+set(urls "${CMAKE_CURRENT_SOURCE_DIR}/Url")
+
+add_library(
+    Requests STATIC 
+    "${urls}/url.c++"
+    "${hosts}/host.c++"
 )
 
-# Create the executable
-add_executable(requests_tests ${SOURCES})
+target_include_directories(Requests PUBLIC
+    "${urls}"
+    "${hosts}"
+)
+
+target_link_libraries(Requests PUBLIC networking)
 
 
-# Platform-specific configurations
-if (WIN32)
-    include_directories("C:/Program Files/OpenSSL-Win64/include")
-    target_link_libraries(requests_tests
-        "C:/Program Files/OpenSSL-Win64/lib/VC/x64/MD/libssl.lib"
-        "C:/Program Files/OpenSSL-Win64/lib/VC/x64/MD/libcrypto.lib"
-        ws2_32
-        iphlpapi
+if(PROJECT_IS_TOP_LEVEL)
+
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/objects")
+    file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+    include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+
+
+    set(test_directory "${CMAKE_CURRENT_SOURCE_DIR}/Tests")
+    set(web_content_dir "${test_directory}/web content")
+    set(test_cert "${web_content_dir}/cert.pem")
+    set(test_key "${web_content_dir}/key.pem")
+
+    file(MAKE_DIRECTORY "${web_content_dir}")
+
+    if(NOT EXISTS "${test_cert}" AND NOT EXISTS "${test_key}")
+        find_program(OPENSSL_EXECUTABLE openssl)
+        if(OPENSSL_EXECUTABLE)
+            execute_process(
+                COMMAND ${OPENSSL_EXECUTABLE} req
+                    -x509
+                    -newkey rsa:2048
+                    -keyout "${test_key}"
+                    -out "${test_cert}"
+                    -days 365
+                    -nodes
+                    -subj "/CN=localhost"
+                RESULT_VARIABLE openssl_result
+                ERROR_VARIABLE openssl_error
+            )
+            if(NOT openssl_result EQUAL 0)
+                message(WARNING "Failed to generate test certificates: ${openssl_error}")
+            else()
+                message(STATUS "Generated test certificates in ${web_content_dir}")
+            endif()
+        else()
+            message(WARNING "OpenSSL executable not found — cannot generate test certificates")
+        endif()
+    endif()
+
+
+
+    include(FetchContent)
+    set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries)
+
+    FetchContent_Declare(
+        googletest
+        GIT_REPOSITORY https://github.com/google/googletest.git
+        GIT_TAG v1.14.0
+        GIT_SHALLOW TRUE
     )
-else()
-    find_package(OpenSSL required)
-    target_link_libraries(requests_tests OnelSSL::SSL OpenSSL::Crypto)
-endif()
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    FetchContent_MakeAvailable(googletest)
 
-target_compile_options(requests_tests PRIVATE -Wall -Wextra)
+    enable_testing()
+    include(GoogleTest)
+
+    add_executable(
+        host_tests
+        "${test_directory}/Host Tests.c++"
+        "${urls}"
+    )
+
+    target_include_directories(host_tests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Url")
+    target_link_libraries(host_tests PRIVATE networking gtest_main)
+    set_target_properties(host_tests PROPERTIES OUTPUt_NAME "Host Tests")
+    gtest_discover_tests(host_tests WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_MODE PRE_TEST)
+
+
+endif(PROJECT_IS_TOP_LEVEL)

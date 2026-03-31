@@ -1,0 +1,75 @@
+
+
+
+
+#if not defined(_url_)
+
+    #define _url_
+
+    #include <cstddef>
+    #include <string>
+    #include <string_view>
+    #include <utility>
+
+    namespace requests {
+
+        namespace {
+            const std::pair<size_t, size_t> default_pair = {std::string::npos, std::string::npos};
+        }
+
+        class url {
+
+            // scheme:[//userinfo@]host[:port]/path[?query][#fragment]
+
+            // Scheme: https
+            // Userinfo: user:pass
+            // Host: example.com
+            // Port: 443
+            // Path: /api/v1/users
+            // Query: role=admin
+            // Fragment: profile
+
+            const std::string url_;
+            std::pair<size_t, size_t> scheme_ = default_pair, user_info_ = default_pair,
+                                      host_ = default_pair, port_ = default_pair,
+                                      path_ = default_pair, query_ = default_pair,
+                                      fragment_ = default_pair;
+
+
+
+            public:
+
+
+                url(std::string_view raw_url);
+
+                url(const url& other);
+
+                url(url&& other) noexcept;
+
+                ~url();
+
+                url& operator=(const url& other);
+
+                url& operator=(url&& other) noexcept;
+                
+                url& operator=(std::string_view other);
+
+                bool scheme() const;
+
+                bool user_info() const;
+
+                bool host() const;
+
+                bool port() const;
+
+                bool path() const;
+
+                bool query() const;
+
+                bool fragment() const;
+
+        };
+
+    }
+
+#endif
