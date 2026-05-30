@@ -7,6 +7,7 @@
     #define _url_
 
     #include <cstddef>
+    #include <map>
     #include <string>
     #include <string_view>
     #include <utility>
@@ -14,8 +15,36 @@
     namespace requests {
 
         namespace {
-            const std::pair<size_t, size_t> default_pair = {std::string::npos, std::string::npos};
+            const std::pair<char*, char*> default_pair = {nullptr, nullptr};
+            const char* scheme_end = "://", 
+                      *user_info_end = "@",
+                      *host_end = ":",
+                      *port_end = "/",
+                      *path_end = "?",
+                      *query_end = "#",
+                      *query_identifier = "?";
+
+            bool same_char(const char a, const char b, const bool ignore_case = true) {
+                return ignore_case ? std::toupper(a) == std::toupper(b) : a == b;
+            }
+
+            bool same_string(std::string_view first, std::string_view second, const bool ignore_case = true) {
+                if (first.length() != second.length()) return false;
+                size_t index;
+                for (index = 0; index < first.length(); index++) {
+                    if (not same_char(first[index], second[index], ignore_case)) return false;
+                }
+                return true;
+            }
         }
+
+        inline const std::string& SCHEME = "Scheme";
+        inline const std::string& USER_INFO = "User Info";
+        inline const std::string& HOST = "Host";
+        inline const std::string& PORT = "Port";
+        inline const std::string& PATH = "Path";
+        inline const std::string& QUERY = "Query";
+        inline const std::string& FRAGMENT = "Fragment";
 
         class url {
 
@@ -29,12 +58,11 @@
             // Query: role=admin
             // Fragment: profile
 
-            const std::string url_;
-            std::pair<size_t, size_t> scheme_ = default_pair, user_info_ = default_pair,
-                                      host_ = default_pair, port_ = default_pair,
-                                      path_ = default_pair, query_ = default_pair,
-                                      fragment_ = default_pair;
+            std::string url_;
+            std::map<std::string, std::pair<const char*, const char*> > pairs_;
 
+
+            url& parse(std::string_view raw_url);
 
 
             public:
@@ -53,6 +81,10 @@
                 url& operator=(url&& other) noexcept;
                 
                 url& operator=(std::string_view other);
+
+                operator bool() const;
+
+                const std::string operator[](std::string_view element) const;
 
                 bool scheme() const;
 

@@ -4,3 +4,4 @@ objects/*
 temp.txt
 .cache/*
 Libraries/*
+cmake_test_discovery_*

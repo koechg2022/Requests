@@ -1,16 +1,14 @@
 
-
-
 cmake_minimum_required(VERSION 4.0.0)
 
-project("Requests" VERSION 0.3.0 LANGUAGES CXX)
+project("Requests" VERSION 0.4.0 LANGUAGES CXX)
+# project("Book Tracker" VERSION 0.0.1 LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(source_extensions ".c++" ".C++" ".cpp" ".cxx" ".cc" ".CC")
 set(header_extensions ".h++" ".H++" ".hpp" ".hxx" ".hh" ".H" ".h" "")
-
 
 include(FetchContent)
 
@@ -19,45 +17,59 @@ set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries)
 FetchContent_Declare(
     networking
     GIT_REPOSITORY git@gitlab.com:fastest-ho-group/Networking-library.git
-    GIT_TAG version1.0
+    GIT_TAG version1.1
     GIT_SHALLOW TRUE
 )
 
 FetchContent_MakeAvailable(networking)
+# get_target_property(networking_INCLUDE_DIRS networking INCLUDE_DIRECTORIES)
+get_target_property(networking_INCLUDE_DIRS networking INTERFACE_INCLUDE_DIRECTORIES)
 
 
-set(hosts "${CMAKE_CURRENT_SOURCE_DIR}/Hosts")
-set(urls "${CMAKE_CURRENT_SOURCE_DIR}/Url")
 
-add_library(
-    Requests STATIC 
-    "${urls}/url.c++"
-    "${hosts}/host.c++"
+
+FetchContent_Declare(
+    nlohmann_json
+    GIT_REPOSITORY https://github.com/nlohmann/json.git
+    GIT_TAG v3.11.3
+    GIT_SHALLOW TRUE
 )
+FetchContent_MakeAvailable(nlohmann_json)
 
-target_include_directories(Requests PUBLIC
-    "${urls}"
-    "${hosts}"
-)
 
-target_link_libraries(Requests PUBLIC networking)
+# --- Library ---
 
+set(url_directory "${CMAKE_CURRENT_SOURCE_DIR}/Url")
+set(host_directory "${CMAKE_CURRENT_SOURCE_DIR}/Hosts")
+
+add_library(requests STATIC "${url_directory}/url.c++")
+
+target_include_directories(requests PUBLIC ${url_directory} ${networking_INCLUDE_DIRS})
+# target_link_libraries(requests PUBLIC networking)
+target_link_libraries(requests PUBLIC networking)
+
+target_compile_features(requests PUBLIC cxx_std_23)
+
+
+
+# --- Tests (only when this is top-level project) ---
 
 if(PROJECT_IS_TOP_LEVEL)
 
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/objects")
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/Objects")
     file(MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-
     set(test_directory "${CMAKE_CURRENT_SOURCE_DIR}/Tests")
-    set(web_content_dir "${test_directory}/web content")
-    set(test_cert "${web_content_dir}/cert.pem")
-    set(test_key "${web_content_dir}/key.pem")
+    set(web_content_directory "${test_directory}/web content")
 
-    file(MAKE_DIRECTORY "${web_content_dir}")
+    set(test_certification "${web_content_directory}/cert.pem")
+    set(test_key "${web_content_directory}/key.pem")
 
-    if(NOT EXISTS "${test_cert}" AND NOT EXISTS "${test_key}")
+    file(MAKE_DIRECTORY "${web_content_directory}")
+
+
+    if(NOT EXISTS "${test_certification}" AND NOT EXISTS "${test_key}")
         find_program(OPENSSL_EXECUTABLE openssl)
         if(OPENSSL_EXECUTABLE)
             execute_process(
@@ -83,9 +95,7 @@ if(PROJECT_IS_TOP_LEVEL)
     endif()
 
 
-
-    include(FetchContent)
-    set(FETCHCONTENT_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Libraries)
+    set(FETCHCONTENT_BASE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/Libraries")
 
     FetchContent_Declare(
         googletest
@@ -93,22 +103,23 @@ if(PROJECT_IS_TOP_LEVEL)
         GIT_TAG v1.14.0
         GIT_SHALLOW TRUE
     )
+
     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
     FetchContent_MakeAvailable(googletest)
 
     enable_testing()
+
     include(GoogleTest)
 
+    # url tests
     add_executable(
-        host_tests
-        "${test_directory}/Host Tests.c++"
-        "${urls}"
+        url_tests
+        "${test_directory}/Url Tests.c++"
     )
 
-    target_include_directories(host_tests PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/Url")
-    target_link_libraries(host_tests PRIVATE networking gtest_main)
-    set_target_properties(host_tests PROPERTIES OUTPUt_NAME "Host Tests")
-    gtest_discover_tests(host_tests WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_MODE PRE_TEST)
-
+    target_link_libraries(url_tests PRIVATE requests networking gtest_main nlohmann_json::nlohmann_json)
+    set_target_properties(url_tests PROPERTIES OUTPUT_NAME "Url Tests")
+    gtest_discover_tests(url_tests WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_MODE PRE_TEST)
+    
 
 endif(PROJECT_IS_TOP_LEVEL)
