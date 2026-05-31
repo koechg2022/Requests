@@ -37,16 +37,30 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(nlohmann_json)
 
 
+
+FetchContent_Declare(
+    string_functions
+    GIT_REPOSITORY "git@gitlab.com:fastest-ho-group/string-functions.git"
+    GIT_TAG version0.0
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(string_functions)
+
+
 # --- Library ---
 
-set(url_directory "${CMAKE_CURRENT_SOURCE_DIR}/Url")
-set(host_directory "${CMAKE_CURRENT_SOURCE_DIR}/Hosts")
+set(model_directory "${CMAKE_CURRENT_SOURCE_DIR}/Model")
+set(source_files "")
+list(APPEND source_files 
+    "${model_directory}/Impl/Url.c++"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Exceptions/Impl/Request Exceptions.c++"
+)
 
-add_library(requests STATIC "${url_directory}/url.c++")
+add_library(requests STATIC "${source_files}")
 
-target_include_directories(requests PUBLIC ${url_directory} ${networking_INCLUDE_DIRS})
-# target_link_libraries(requests PUBLIC networking)
-target_link_libraries(requests PUBLIC networking)
+target_include_directories(requests PUBLIC "${model_directory}" "${networking_INCLUDE_DIRS}" "${CMAKE_CURRENT_SOURCE_DIR}/Exceptions")
+
+target_link_libraries(requests PUBLIC networking nlohmann_json::nlohmann_json string_functions)
 
 target_compile_features(requests PUBLIC cxx_std_23)
 
@@ -117,7 +131,7 @@ if(PROJECT_IS_TOP_LEVEL)
         "${test_directory}/Url Tests.c++"
     )
 
-    target_link_libraries(url_tests PRIVATE requests networking gtest_main nlohmann_json::nlohmann_json)
+    target_link_libraries(url_tests PRIVATE requests gtest_main)
     set_target_properties(url_tests PROPERTIES OUTPUT_NAME "Url Tests")
     gtest_discover_tests(url_tests WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_MODE PRE_TEST)
     
