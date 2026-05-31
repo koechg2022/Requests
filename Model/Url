@@ -1,0 +1,73 @@
+
+
+#if not defined(_url_)
+
+
+    #define _url_
+
+    #include <string>
+    #include <string_view>
+    
+
+
+    #include <nlohmann/json.hpp>
+
+
+    namespace requests {
+
+
+
+        /**
+         * @brief The url that contains all the information:
+         * 
+         *
+         * @note This is the rough structure : 
+         *  scheme://username:password@subdomain.domain.tld:port/path?query=key&value#fragment
+         *
+         */
+        class Url {
+
+            std::string raw_url_;
+            
+            std::string_view scheme_, username_, password_,
+                complete_domain_, subdomain_, domain_, top_level_domain_, 
+                port_, path_, query_, fragment_;
+
+            nlohmann::json queries_;
+
+            Url& reset(std::string_view& the_view);
+
+            Url& parse();
+
+            public:
+
+                Url(std::string_view raw_url);
+
+                Url(const Url& other);
+
+                Url(Url&& other) noexcept;
+
+                ~Url() = default;
+
+                Url& operator=(const Url& other);
+
+                Url& operator=(Url&& other) noexcept;
+
+                Url& operator=(std::string_view other);
+
+                Url& operator()(std::string_view);
+
+                std::string_view url() const;
+
+                std::string_view username() const;
+
+
+
+
+
+        };
+
+    }
+
+
+#endif

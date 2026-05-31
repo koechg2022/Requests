@@ -1,0 +1,89 @@
+
+
+
+
+
+#if not defined(_exceptions_)
+
+
+    #define _exceptions_
+
+    #include <exception>
+    #include <string>
+    #include <string_view>
+
+
+    namespace requests {
+
+
+        class Exception : public std::exception {
+
+            public:
+
+                virtual ~Exception() = default;
+
+                virtual const char* what() const noexcept override = 0;
+
+                virtual std::string_view message() const = 0;
+
+                virtual std::string_view exception_type() const = 0;
+        };
+
+
+        namespace {
+
+
+            template <typename e> class except_ : public Exception {
+
+                
+                protected:
+                    std::string msg_;
+                
+                    except_(std::string_view msg) {
+                        this->msg_ = msg;
+                    }
+
+                    ~except_() throw() = default;
+
+                public:
+
+                    const char* what() const noexcept override {
+                        return this->msg_.c_str();
+                    }
+
+                    virtual std::string_view message() const override = 0;
+
+                    virtual std::string_view exception_type() const override = 0;
+
+            };
+
+
+        }
+
+        #if not defined(create_exception)
+            #define create_exception(name, msg_) \
+            class name : public except_<name> {\
+                public:\
+                    name(std::string_view msg = msg_);\
+                    \
+                    std::string_view message() const override;\
+                    \
+                    std::string_view exception_type() const override;\
+            };
+        #endif
+
+
+        create_exception(unsupported, "Unsupported")
+        create_exception(illegal_url_exception, "Illegal url passed in")
+        create_exception(empty_url, "Empty url passed in")
+
+
+        #if defined(create_exception)
+            #undef create_exception
+        #endif
+
+
+    }
+
+
+#endif
