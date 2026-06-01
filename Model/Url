@@ -1,11 +1,13 @@
 
 
+
 #if not defined(_url_)
 
 
     #define _url_
 
     #include <concepts>
+    #include <cstddef>
     #include <string>
     #include <string_view>
     #include <utility>
@@ -75,6 +77,15 @@
                     return this->operator=<Source>(raw_url);
                 }
 
+                template <class Source> requires std::constructible_from<std::string, Source>
+                bool operator==(const Source&& other) const {
+                    return string_functions::same_string(this->raw_url_, other);
+                }
+
+                bool equals(const Url& other, const bool ignore_case = true) const;
+
+                bool operator==(const Url& other) const;
+
                 operator std::string_view() const;
 
                 operator bool() const;
@@ -107,9 +118,19 @@
 
                 bool empty() const;
 
+                std::size_t hash() const;
+
 
         };
 
+    }
+
+    namespace std {
+        template <> struct hash<requests::Url> {
+            std::size_t operator()(const requests::Url& other) const noexcept {
+                return other.hash();
+            }
+        };
     }
 
 

@@ -262,18 +262,6 @@ requests::Url& requests::Url::parse() {
 }
 
 
-
-
-
-
-// requests::Url::Url(std::string_view raw_url) : raw_url_(raw_url) {
-//     this->parse();
-// }
-
-// requests::Url::Url(const std::string& raw_url) : raw_url_(raw_url) {
-//     this->parse();
-// }
-
 requests::Url::Url(const requests::Url& other) : raw_url_(other.raw_url_) {
     this->parse();
 }
@@ -296,6 +284,14 @@ requests::Url& requests::Url::operator=(requests::Url&& other) noexcept {
     other.reset_all(true);
     this->parse();
     return *this;
+}
+
+bool requests::Url::equals(const requests::Url& other, const bool ignore_case) const {
+    return string_functions::same_string(this->raw_url_, other.raw_url_, ignore_case);
+}
+
+bool requests::Url::operator==(const requests::Url& other) const {
+    return this->equals(other);
 }
 
 requests::Url::operator std::string_view() const {
@@ -361,4 +357,8 @@ std::string_view requests::Url::fragment() const {
 
 bool requests::Url::empty() const {
     return this->raw_url_.empty();
+}
+
+std::size_t requests::Url::hash() const {
+    return std::hash<std::string>{}(this->raw_url_);
 }

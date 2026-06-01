@@ -36,7 +36,7 @@ TEST(Url_Tests, create_url) {
 }
 
 
-TEST(Url_Tests, exotic_urls) {
+TEST(Url_Tests, exotic_hostnames) {
     const std::string example = "https://www.example.co.uk";
 
     const requests::Url url = example;
@@ -46,6 +46,21 @@ TEST(Url_Tests, exotic_urls) {
     ASSERT_TRUE(string_functions::same_string("co.uk", url.top_level_domain(), false)) << "The top level domain should have evalauted to \"co.uk\", but instead it evaluated to \""  << url.top_level_domain() << "\"" << std::endl;
     ASSERT_TRUE(string_functions::same_string("https", url.scheme())) << "The scheme should be \"https\", but instead it's \"" << url.scheme() << "\"" << std::endl;
     ASSERT_TRUE(string_functions::same_string("example.co.uk", url.usable_domain())) << "The usable domain should have been \"example.co.uk\", but instead it was \"" << url.usable_domain() << "\"" << std::endl;
+}
+
+TEST(Url_Tests, schemes) {
+    
+    requests::Url example = "scheme://user:pass@domain.com/path";
+    ASSERT_FALSE(example.scheme().empty()) << "The scheme should exist, but apparenly it doesn't." << std::endl;
+    ASSERT_EQ("scheme", example.scheme()) << "The scheme should have been \"scheme\", but instead it is \"" << example.scheme() << "\"" << std::endl;
+    example = "https://www.example.co.uk";
+    ASSERT_EQ("https", example.scheme()) << "The new scheme should be \"https\", but instead it is \"" << example.scheme() << "\"" << std::endl;
+    example = "example.com";
+    ASSERT_TRUE(example.scheme().empty()) << "The example url's scheme should be empty, but it's \"" << example.scheme() << "\" instead. That's not kosher" << std::endl;
+    
+    example = "ssh://example.com";
+    ASSERT_FALSE(example.scheme().empty()) << "The example url's scheme should not be empty, but it is. That's not kosher" << std::endl;
+    ASSERT_EQ("ssh", example.scheme()) << "The scheme should be \"ssh\", but instead it is \"" << example.scheme() << "\"" << std::endl;
 }
 
 
