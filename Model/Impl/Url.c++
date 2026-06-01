@@ -298,30 +298,6 @@ requests::Url& requests::Url::operator=(requests::Url&& other) noexcept {
     return *this;
 }
 
-// requests::Url& requests::Url::operator=(std::string_view other) {
-//     if (string_functions::same_string(this->raw_url_, other, false)) return *this;
-//     this->raw_url_.clear();
-//     this->raw_url_.append(other.begin(), other.end());
-//     this->parse();
-//     return *this;
-// }
-
-// requests::Url& requests::Url::operator=(const std::string& other) {
-//     // if (string_functions::same_string(this->raw_url_, other, false)) return *this;
-//     // this->raw_url_.clear();
-//     // this->raw_url_.append(other.begin(), other.end());
-//     // this->parse();
-//     // return *this;
-//     return (*this = std::string_view(other));
-// }
-
-// requests::Url& requests::Url::operator()(std::string_view other) {
-//     if (string_functions::same_string(this->raw_url_, other, false)) return *this;
-//     this->raw_url_.append(other.begin(), other.end());
-//     this->parse();
-//     return *this;
-// }
-
 requests::Url::operator std::string_view() const {
     return this->raw_url_;
 }
@@ -342,7 +318,6 @@ std::string_view requests::Url::username() const {
     return this->username_;
 }
 
-
 std::string_view requests::Url::password() const {
     return this->password_;
 }
@@ -357,6 +332,11 @@ std::string_view requests::Url::domain() const {
 
 std::string_view requests::Url::top_level_domain() const {
     return this->top_level_domain_;
+}
+
+const std::string requests::Url::usable_domain() const {
+    if (this->domain_.empty() or this->top_level_domain_.empty()) return std::string(this->domain_).append(this->top_level_domain_);
+    return std::string(this->domain_).append(".").append(this->top_level_domain_);
 }
 
 std::string_view requests::Url::port() const {

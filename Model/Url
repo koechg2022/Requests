@@ -47,13 +47,8 @@
 
             public:
 
-                // Url(std::string_view raw_url);
-
-                // Url(const std::string& raw_url);
-
                 template <class Source> requires std::constructible_from<std::string, Source>
-                explicit(false) 
-                Url(Source&& raw_url) : raw_url_(std::forward<Source>(raw_url)) {
+                explicit(false) Url(Source&& raw_url) : raw_url_(std::forward<Source>(raw_url)) {
                     this->parse();
                 }
 
@@ -67,12 +62,7 @@
 
                 Url& operator=(Url&& other) noexcept;
 
-                // Url& operator=(std::string_view other);
-
-                // Url& operator=(const std::string& other);
-
-                template <class Source>
-                    requires std::constructible_from<std::string, Source>
+                template <class Source> requires std::constructible_from<std::string, Source>
                 Url& operator=(Source&& raw_url) {
                     if (string_functions::same_string(this->raw_url_, raw_url, false)) return *this;
                     this->raw_url_ = std::forward<Source>(raw_url);
@@ -80,14 +70,8 @@
                     return *this;
                 }
 
-                // Url& operator()(std::string_view other);
-                template <class Source>
-                    requires std::constructible_from<std::string, Source>
+                template <class Source> requires std::constructible_from<std::string, Source>
                 Url& operator()(Source&& raw_url) {
-
-                    // if (string_functions::same_string(this->raw_url_, other, false)) return *this;
-                    // this->raw_url_.append(other.begin(), other.end());
-                    // this->parse();
                     return this->operator=<Source>(raw_url);
                 }
 
@@ -108,6 +92,8 @@
                 std::string_view domain() const;
 
                 std::string_view top_level_domain() const;
+
+                const std::string usable_domain() const;
 
                 std::string_view port() const;
 
