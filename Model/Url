@@ -88,7 +88,9 @@
 
                 operator std::string_view() const;
 
-                operator bool() const;
+                explicit operator bool() const;
+
+                std::string_view operator[](const std::string_view key) const;
 
                 std::string_view url() const;
 

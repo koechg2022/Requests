@@ -2,6 +2,7 @@
 
 
 
+#include "Request Exceptions"
 #include <String Functions>
 #include <Url>
 
@@ -127,11 +128,17 @@ TEST(Url_Tests, queries) {
     // query coexisting with a fragment: query must stop at the '#'
     url = "https://www.example.com/search?q=hello&lang=en#results";
     ASSERT_TRUE(string_functions::same_string("q=hello&lang=en", url.query())) << "With a fragment present, the query should still be \"q=hello&lang=en\", but instead it was \"" << url.query() << "\"" << std::endl;
+    ASSERT_EQ("hello", url.queries()["q"]) << "The queries should have a value of \"hello\" associated with the key value of \"q\"" << std::endl;
+    ASSERT_EQ("hello", url["q"]) << "The queries should have a value of \"hello\" associated with the key value of \"q\"" << std::endl;
+    ASSERT_EQ("en", url.queries()["lang"]) << "The language should be \"en\", but instead it was \"" << url.queries()["lang"] << "\"" << std::endl;
+
 
     // no query -> empty, and nothing parsed
     url = "https://www.example.com/";
     ASSERT_TRUE(url.query().empty()) << "There is no query here, so it should be empty, but it's \"" << url.query() << "\"" << std::endl;
     ASSERT_TRUE(url.queries().empty()) << "There is no query here, so the parsed map should be empty, but it has " << url.queries().size() << " entries" << std::endl;
+
+    ASSERT_THROW(url = "https://www.example.com/search?q&msg=hello%20world", requests::illegal_url_exception);
 }
 
 TEST(Url_Tests, fragments) {
@@ -139,15 +146,15 @@ TEST(Url_Tests, fragments) {
 
     // the fragment, no leading '#'
     ASSERT_FALSE(url.fragment().empty()) << "The fragment should exist, but it's registering as empty" << std::endl;
-    ASSERT_TRUE(string_functions::same_string("section2", url.fragment())) << "The fragment should have been \"section2\", but instead it was \"" << url.fragment() << "\"" << std::endl;
+    ASSERT_EQ("section2", url.fragment()) << "The fragment should have been \"section2\", but instead it was \"" << url.fragment() << "\"" << std::endl;
 
     // fragment after a query
     url = "https://www.example.com/search?q=hello#results";
-    ASSERT_TRUE(string_functions::same_string("results", url.fragment())) << "The fragment should have been \"results\", but instead it was \"" << url.fragment() << "\"" << std::endl;
+    ASSERT_EQ("results", url.fragment()) << "The fragment should have been \"results\", but instead it was \"" << url.fragment() << "\"" << std::endl;
 
     // fragment directly after the host, no path given -> path defaults to "/", fragment still parses
     url = "https://www.example.com#top";
-    ASSERT_TRUE(string_functions::same_string("top", url.fragment())) << "The fragment should have been \"top\", but instead it was \"" << url.fragment() << "\"" << std::endl;
+    ASSERT_EQ("top", url.fragment()) << "The fragment should have been \"top\", but instead it was \"" << url.fragment() << "\"" << std::endl;
     ASSERT_EQ("/", url.path()) << "With no path but a fragment, the path should default to \"/\", but instead it was \"" << url.path() << "\"" << std::endl;
 
     // no fragment -> empty

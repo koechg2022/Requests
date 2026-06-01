@@ -291,6 +291,12 @@ requests::Url::operator bool() const {
     return not this->raw_url_.empty();
 }
 
+std::string_view requests::Url::operator[](const std::string_view key) const {
+    const auto value = this->queries_.find(key);
+    if (value == this->queries_.end()) return "";
+    return this->queries_.at(key).get_ref<const nlohmann::json::string_t&>();
+}
+
 std::string_view requests::Url::url() const {
     return this->raw_url_;
 }
