@@ -69,13 +69,16 @@ list(APPEND source_files
 add_library(requests STATIC "${source_files}")
 
 # target_compile_definitions(requests PRIVATE PSL_PATH="${publicsuffix_SOURCE_DIR}/public_suffix_list.dat")
-target_include_directories(requests PRIVATE ${publicsuffix_SOURCE_DIR})
+# target_include_directories(requests PRIVATE ${publicsuffix_SOURCE_DIR})
+target_compile_definitions(requests PRIVATE PSL_EMBED_PATH=\"${publicsuffix_SOURCE_DIR}/public_suffix_list.dat\")
 
 target_include_directories(requests PUBLIC "${model_directory}" "${networking_INCLUDE_DIRS}" "${CMAKE_CURRENT_SOURCE_DIR}/Exceptions")
 
 target_link_libraries(requests PUBLIC networking nlohmann_json::nlohmann_json string_functions )
 
 target_compile_features(requests PUBLIC cxx_std_23)
+
+# target_compile_options(requests PRIVATE -Wno-c23-extensions)
 
 
 

@@ -68,9 +68,15 @@ namespace {
             // }
 
             psl_list& load_built_in() {
-                static constexpr unsigned char suffix_list[] = {
-                    #embed "public_suffix_list.dat"
-                };
+                // static constexpr unsigned char suffix_list[] = {
+                //     #embed PSL_EMBED_PATH
+                // };
+                #pragma clang diagnostic push
+                #pragma clang diagnostic ignored "-Wc23-extensions"
+                    static constexpr unsigned char suffix_list[] = {
+                        #embed PSL_EMBED_PATH
+                    };
+                #pragma clang diagnostic pop
                 return this->load_from_text(std::string_view(reinterpret_cast<const char*>(suffix_list), sizeof(suffix_list)));
             }
 
@@ -260,9 +266,13 @@ requests::Url& requests::Url::parse() {
 
 
 
-requests::Url::Url(std::string_view raw_url) : raw_url_(raw_url) {
-    this->parse();
-}
+// requests::Url::Url(std::string_view raw_url) : raw_url_(raw_url) {
+//     this->parse();
+// }
+
+// requests::Url::Url(const std::string& raw_url) : raw_url_(raw_url) {
+//     this->parse();
+// }
 
 requests::Url::Url(const requests::Url& other) : raw_url_(other.raw_url_) {
     this->parse();
@@ -288,19 +298,29 @@ requests::Url& requests::Url::operator=(requests::Url&& other) noexcept {
     return *this;
 }
 
-requests::Url& requests::Url::operator=(std::string_view other) {
-    if (string_functions::same_string(this->raw_url_, other, false)) return *this;
-    this->raw_url_.append(other.begin(), other.end());
-    this->parse();
-    return *this;
-}
+// requests::Url& requests::Url::operator=(std::string_view other) {
+//     if (string_functions::same_string(this->raw_url_, other, false)) return *this;
+//     this->raw_url_.clear();
+//     this->raw_url_.append(other.begin(), other.end());
+//     this->parse();
+//     return *this;
+// }
 
-requests::Url& requests::Url::operator()(std::string_view other) {
-    if (string_functions::same_string(this->raw_url_, other, false)) return *this;
-    this->raw_url_.append(other.begin(), other.end());
-    this->parse();
-    return *this;
-}
+// requests::Url& requests::Url::operator=(const std::string& other) {
+//     // if (string_functions::same_string(this->raw_url_, other, false)) return *this;
+//     // this->raw_url_.clear();
+//     // this->raw_url_.append(other.begin(), other.end());
+//     // this->parse();
+//     // return *this;
+//     return (*this = std::string_view(other));
+// }
+
+// requests::Url& requests::Url::operator()(std::string_view other) {
+//     if (string_functions::same_string(this->raw_url_, other, false)) return *this;
+//     this->raw_url_.append(other.begin(), other.end());
+//     this->parse();
+//     return *this;
+// }
 
 requests::Url::operator std::string_view() const {
     return this->raw_url_;
