@@ -26,7 +26,7 @@ namespace {
 
     // scheme://username:password@subdomain.domain.tld:port/path?query=key&value#fragment
 
-    const std::regex complete_url(R"regex(^((.+?):\/\/)?(?:(([^@\/?#\r\n]+)@))?([^:\/?#\r\n]+)(?::(\d+))?(?=[\/?#]|$)(?:\/([^?#\r\n]*))?(?=[?#\r\n]|$)(?:\?([^\#\r\n]*))?(?=#[^\r\n]*|$)(?:#([^\r\n]*))?$)regex", std::regex_constants::icase);
+    const std::regex complete_url(R"regex(^((.+?):\/\/)?(?:(([^@\/?#\r\n]+)@))?([^:\/?#\r\n]+)(?::(\d+))?(?=[\/?#]|$)(?:(\/[^?#\r\n]*))?(?=[?#\r\n]|$)(?:\?([^\#\r\n]*))?(?=#[^\r\n]*|$)(?:#([^\r\n]*))?$)regex", std::regex_constants::icase);
     
     using components = enum {
         THE_SCHEME    = 2,   // group 1 is "scheme://"; group 2 is the bare scheme name
@@ -173,6 +173,7 @@ requests::Url& requests::Url::reset(std::string_view& the_view) {
 
 requests::Url& requests::Url::reset_all(const bool raw) {
     if (raw) this->raw_url_ = "";
+    this->queries_.clear();
     return this->reset(this->scheme_)
     .reset(this->username_).reset(this->password_)
     .reset(this->subdomain_).reset(this->domain_).reset(this->top_level_domain_)
@@ -197,7 +198,8 @@ requests::Url& requests::Url::parse() {
         if (matches[THE_SCHEME].matched) this->scheme_ = { matches[THE_SCHEME].first, matches[THE_SCHEME].second};
 
         if (matches[THE_AUTHORITY].matched) {
-            const std::regex authority_pattern(R"regex(([^:@\r\n]*:[^:@\r\n]*@)?)regex", std::regex_constants::icase);
+            // const std::regex authority_pattern(R"regex(([^:@\r\n]*:[^:@\r\n]*@)?)regex", std::regex_constants::icase);
+            const std::regex authority_pattern(R"regex(([^:@\r\n]*):([^:@\r\n]*)@)regex", std::regex_constants::icase);
             std::match_results<std::string_view::const_iterator> authority_matches;
             std::string_view this_authority = {matches[THE_AUTHORITY].first, matches[THE_AUTHORITY].second};
             if (std::regex_search(this_authority.begin(), this_authority.end(), authority_matches, authority_pattern)) {
@@ -209,19 +211,6 @@ requests::Url& requests::Url::parse() {
         }
 
         if (matches[THE_DOMAIN].matched) {
-            // std::string_view complete_domain = { matches[THE_DOMAIN].first, matches[THE_DOMAIN].second};
-            // const std::regex domain_pattern(R"regex(^([^.]+)\.([^.]+)\.(.+)$)regex", std::regex_constants::icase);
-            // std::match_results<std::string_view::const_iterator> domain_matches;
-            // // std::string_view this_domain = {matches[THE_DOMAIN].first, matches[THE_DOMAIN].second};
-            // if (std::regex_search(complete_domain.begin(), complete_domain.end(), domain_matches, domain_pattern)) {
-
-            //     if (domain_matches[1].matched) this->subdomain_ = { domain_matches[1].first, domain_matches[1].second};
-
-            //     if (domain_matches[2].matched) this->domain_ = { domain_matches[2].first, domain_matches[2].second};
-
-            //     if (domain_matches[3].matched) this->top_level_domain_ = { domain_matches[3].first, domain_matches[3].second};
-            // }
-            // else this->domain_ = complete_domain;
             std::string_view complete_domain = { matches[THE_DOMAIN].first, matches[THE_DOMAIN].second };
             const host_parts parts = split_host(the_psl(), complete_domain);
             if (parts.ok) {
@@ -237,6 +226,7 @@ requests::Url& requests::Url::parse() {
         if (matches[THE_PORT].matched) this->port_ = { matches[THE_PORT].first, matches[THE_PORT].second};
 
         if (matches[THE_PATH].matched) this->path_ = { matches[THE_PATH].first, matches[THE_PATH].second};
+        else this->path_ = "/";
 
         if (matches[THE_QUERY].matched) {
             this->query_ = { matches[THE_QUERY].first, matches[THE_QUERY].second};
@@ -260,7 +250,6 @@ requests::Url& requests::Url::parse() {
 
     return *this;
 }
-
 
 requests::Url::Url(const requests::Url& other) : raw_url_(other.raw_url_) {
     this->parse();
