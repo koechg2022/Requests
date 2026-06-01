@@ -30,12 +30,14 @@
             std::string raw_url_;
             
             std::string_view scheme_, username_, password_,
-                complete_domain_, subdomain_, domain_, top_level_domain_, 
+                subdomain_, domain_, top_level_domain_, 
                 port_, path_, query_, fragment_;
 
             nlohmann::json queries_;
 
             Url& reset(std::string_view& the_view);
+
+            Url& reset_all(const bool raw = false);
 
             Url& parse();
 
@@ -55,14 +57,37 @@
 
                 Url& operator=(std::string_view other);
 
-                Url& operator()(std::string_view);
+                Url& operator()(std::string_view other);
+
+                operator std::string_view() const;
+
+                operator bool() const;
 
                 std::string_view url() const;
 
+                std::string_view scheme() const;
+
                 std::string_view username() const;
 
+                std::string_view password() const;
 
+                std::string_view subdomain() const;
 
+                std::string_view domain() const;
+
+                std::string_view top_level_domain() const;
+
+                std::string_view port() const;
+
+                std::string_view path() const;
+
+                std::string_view query() const;
+
+                const nlohmann::json& queries() const;
+
+                std::string_view fragment() const;
+
+                bool empty() const;
 
 
         };

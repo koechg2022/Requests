@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 4.0.0)
 
 project("Requests" VERSION 0.4.0 LANGUAGES CXX)
-# project("Book Tracker" VERSION 0.0.1 LANGUAGES CXX)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -47,6 +48,15 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(string_functions)
 
 
+FetchContent_Declare(
+    publicsuffix
+    GIT_REPOSITORY https://github.com/publicsuffix/list.git
+    GIT_TAG main            # or pin a commit hash for reproducible builds
+    GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(publicsuffix)
+
+
 # --- Library ---
 
 set(model_directory "${CMAKE_CURRENT_SOURCE_DIR}/Model")
@@ -58,9 +68,12 @@ list(APPEND source_files
 
 add_library(requests STATIC "${source_files}")
 
+# target_compile_definitions(requests PRIVATE PSL_PATH="${publicsuffix_SOURCE_DIR}/public_suffix_list.dat")
+target_include_directories(requests PRIVATE ${publicsuffix_SOURCE_DIR})
+
 target_include_directories(requests PUBLIC "${model_directory}" "${networking_INCLUDE_DIRS}" "${CMAKE_CURRENT_SOURCE_DIR}/Exceptions")
 
-target_link_libraries(requests PUBLIC networking nlohmann_json::nlohmann_json string_functions)
+target_link_libraries(requests PUBLIC networking nlohmann_json::nlohmann_json string_functions )
 
 target_compile_features(requests PUBLIC cxx_std_23)
 
