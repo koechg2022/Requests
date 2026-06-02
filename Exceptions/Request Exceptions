@@ -30,7 +30,7 @@
         };
 
 
-        namespace {
+        namespace detail {
 
 
             template <typename e> class except_ : public Exception {
@@ -62,7 +62,7 @@
 
         #if not defined(create_exception)
             #define create_exception(name, msg_) \
-            class name : public except_<name> {\
+            class name : public detail::except_<name> {\
                 public:\
                     name(std::string_view msg = msg_);\
                     \

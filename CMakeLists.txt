@@ -141,6 +141,8 @@ if(PROJECT_IS_TOP_LEVEL)
 
     include(GoogleTest)
 
+    set(executables "")
+
     # url tests
     add_executable(
         url_tests
@@ -149,7 +151,61 @@ if(PROJECT_IS_TOP_LEVEL)
 
     target_link_libraries(url_tests PRIVATE requests gtest_main)
     set_target_properties(url_tests PROPERTIES OUTPUT_NAME "Url Tests")
+    target_compile_definitions(url_tests PRIVATE PSL_EMBED_PATH="${CMAKE_CURRENT_SOURCE_DIR}/Libraries/publicsuffix-src/public_suffix_list.dat")
     gtest_discover_tests(url_tests WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_MODE PRE_TEST)
+
+    list(APPEND executables url_tests)
+
+    # Exceptions
+    add_executable(
+        exception_tests
+        "${test_directory}/Exception Tests.c++"
+    )
+
+    target_link_libraries(exception_tests PRIVATE requests gtest_main)
+    set_target_properties(exception_tests PROPERTIES OUTPUT_NAME "Exception Tests")
+    gtest_discover_tests(exception_tests WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" DISCOVERY_MODE PRE_TEST)
+
+    list(APPEND executables exception_tests)
     
+
+    option(ENABLE_COVERAGE "Build with coverage instrumentation" OFF)
+
+    if(ENABLE_COVERAGE)
+        target_compile_options(requests PUBLIC -fprofile-instr-generate -fcoverage-mapping -O0 -g -fcoverage-prefix-map=${CMAKE_CURRENT_SOURCE_DIR}=.)
+        target_link_options(requests PUBLIC -fprofile-instr-generate -fcoverage-mapping)
+
+        find_program(LLVM_PROFDATA llvm-profdata HINTS /opt/homebrew/opt/llvm/bin REQUIRED)
+        find_program(LLVM_COV      llvm-cov      HINTS /opt/homebrew/opt/llvm/bin REQUIRED)
+
+        set(coverage_directory "${CMAKE_CURRENT_SOURCE_DIR}/Report")
+        set(lcov_directory "${CMAKE_CURRENT_SOURCE_DIR}/coverage")
+
+        set(run_commands "")
+        set(profraw_files "")
+        set(object_args "")
+        foreach(exe IN LISTS executables)
+            list(APPEND run_commands
+                COMMAND ${CMAKE_COMMAND} -E env LLVM_PROFILE_FILE=${CMAKE_BINARY_DIR}/${exe}.profraw $<TARGET_FILE:${exe}>)
+            list(APPEND profraw_files ${CMAKE_BINARY_DIR}/${exe}.profraw)
+            list(APPEND object_args -object $<TARGET_FILE:${exe}>)
+        endforeach()
+
+        add_custom_target(coverage
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${coverage_directory}
+            COMMAND ${CMAKE_COMMAND} -E make_directory ${lcov_directory}
+            ${run_commands}
+            COMMAND ${LLVM_PROFDATA} merge -sparse ${profraw_files} -o ${CMAKE_BINARY_DIR}/coverage.profdata
+            COMMAND ${LLVM_COV} report ${object_args} -instr-profile=${CMAKE_BINARY_DIR}/coverage.profdata -compilation-dir=${CMAKE_CURRENT_SOURCE_DIR} -ignore-filename-regex=-src
+            # COMMAND ${LLVM_COV} show   ${object_args} -instr-profile=${CMAKE_BINARY_DIR}/coverage.profdata -format=html -output-dir=${coverage_directory} -compilation-dir=${CMAKE_CURRENT_SOURCE_DIR} -ignore-filename-regex=-src
+            COMMAND ${LLVM_COV} show   ${object_args} -instr-profile=${CMAKE_BINARY_DIR}/coverage.profdata -format=html -output-dir=${coverage_directory} -compilation-dir=${CMAKE_CURRENT_SOURCE_DIR} -ignore-filename-regex=-src -show-branches=count -show-expansions
+            COMMAND ${LLVM_COV} export ${object_args} -instr-profile=${CMAKE_BINARY_DIR}/coverage.profdata -compilation-dir=${CMAKE_CURRENT_SOURCE_DIR} -ignore-filename-regex=-src -format=lcov > ${lcov_directory}/lcov.info
+            DEPENDS ${executables}
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            USES_TERMINAL
+            COMMENT "Running all test binaries and generating merged coverage into Report/ and coverage/lcov.info"
+        )
+    endif()
+
 
 endif(PROJECT_IS_TOP_LEVEL)

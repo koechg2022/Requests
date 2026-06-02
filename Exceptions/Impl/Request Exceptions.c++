@@ -15,7 +15,7 @@
 #if not defined(make_constructor)
     #define make_constructor(name) \
     requests::name::name(std::string_view msg)\
-    : requests::except_<requests::name>::except_(msg) {}\
+    : requests::detail::except_<requests::name>::except_(msg) {}\
     \
     std::string_view requests::name::message() const {return this->msg_;}\
     \
