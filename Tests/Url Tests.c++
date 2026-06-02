@@ -240,29 +240,29 @@ TEST(Exception_Tests, unsupported_and_empty_url) {
 }
 
 TEST(Url_Tests, psl_wildcard_and_exception) {
-    requests::Url wild = "http://blog.foo.ck";   // matches *.ck wildcard rule
+    requests::Url wild = "http://blog.foo.ck";
     ASSERT_EQ(wild.domain(), "blog");
     ASSERT_EQ(wild.top_level_domain(), "foo.ck");
 
-    requests::Url exc = "http://www.ck";          // !www.ck exception rule
+    requests::Url exc = "http://www.ck";
     ASSERT_EQ(exc.domain(), "www");
     ASSERT_EQ(exc.top_level_domain(), "ck");
 }
 
 TEST(Url_Tests, empty_url_and_missing_query_key) {
-    ASSERT_THROW(requests::Url e = "", requests::empty_url);   // parse() empty-guard throw
+    ASSERT_THROW(requests::Url e = "", requests::empty_url);
 
     requests::Url u = "http://x.com/?a=1";
-    ASSERT_EQ(u["missing"], "");                  // operator[] not-found path
+    ASSERT_EQ(u["missing"], "");
 }
 
 
 TEST(Url_Tests, non_matching_input) {
-    requests::Url u = "/";        // fails the URL grammar -> regex_search returns false
+    requests::Url u = "/";
     ASSERT_EQ(u.scheme(), "");
     ASSERT_EQ(u.domain(), "");
-    ASSERT_EQ(u.path(), "");      // the else-branch path "/" sits inside the matched block, so it's skipped
-    ASSERT_FALSE(u.empty());      // empty() reflects raw_url_, which is "/"
+    ASSERT_EQ(u.path(), "");
+    ASSERT_FALSE(u.empty());
 }
 
 TEST(Url_Tests, psl_internal_paths) {
@@ -285,8 +285,6 @@ TEST(Url_Tests, assign_same_value_short_circuit) {
     u = v;
     ASSERT_EQ(u.domain(), "example");
 }
-
-// Add this test to Tests/Url Tests.c++
 
 TEST(Url_Tests, branch_coverage_additions) {
     requests::Url a = "http://user@host.com";
