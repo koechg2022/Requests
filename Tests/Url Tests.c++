@@ -256,7 +256,6 @@ TEST(Url_Tests, empty_url_and_missing_query_key) {
     ASSERT_EQ(u["missing"], "");
 }
 
-
 TEST(Url_Tests, non_matching_input) {
     requests::Url u = "/";
     ASSERT_EQ(u.scheme(), "");
