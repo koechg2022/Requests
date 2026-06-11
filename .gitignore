@@ -9,3 +9,4 @@ cmake_test_discovery_*
 Report/*
 coverage/*
 default.profraw
+Test/web content/*
